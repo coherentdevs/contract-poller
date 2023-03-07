@@ -1,4 +1,4 @@
-module github.com/coherent-api/contract-service
+module github.com/coherent-api/contract-poller
 
 go 1.19
 
@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/storage v1.29.0
 	github.com/DataDog/datadog-go/v5 v5.3.0
 	github.com/ethereum/go-ethereum v1.11.3
+	github.com/nanmu42/etherscan-api v1.10.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2

@@ -2,11 +2,11 @@ package contract_poller
 
 import (
 	"context"
-	"github.com/coherent-api/contract-service/poller/evm/client/abi_client"
-	"github.com/coherent-api/contract-service/poller/pkg/config"
-	"github.com/coherent-api/contract-service/poller/pkg/db"
-	"github.com/coherent-api/contract-service/poller/pkg/models"
-	"github.com/coherent-api/contract-service/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
+	"github.com/coherent-api/contract-poller/poller/pkg/config"
+	"github.com/coherent-api/contract-poller/poller/pkg/db"
+	"github.com/coherent-api/contract-poller/poller/pkg/models"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 )
 
 type contractPoller struct {

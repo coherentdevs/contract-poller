@@ -1,7 +1,7 @@
 package constants
 
 import (
-	"github.com/coherent-api/contract-service/protos/go/protos/shared"
+	"github.com/coherent-api/contract-poller/protos/go/protos/shared"
 )
 
 type Blockchain string

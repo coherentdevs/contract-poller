@@ -1,11 +1,10 @@
 package main
 
 import (
-	contractPoller "github.com/coherent-api/contract-service/poller/evm/internal"
+	contractPoller "github.com/coherent-api/contract-poller/poller/evm/internal"
+	contractPollerCfg "github.com/coherent-api/contract-poller/poller/pkg/config"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 	"time"
-
-	contractPollerCfg "github.com/coherent-api/contract-service/poller/pkg/config"
-	"github.com/coherent-api/contract-service/shared/go/service_framework"
 )
 
 func main() {

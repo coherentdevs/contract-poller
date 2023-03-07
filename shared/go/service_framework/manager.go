@@ -9,8 +9,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/coherent-api/contract-service/shared/go/service_framework/config"
-	"github.com/coherent-api/contract-service/shared/go/service_framework/metrics"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework/config"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework/metrics"
 )
 
 type Manager struct {

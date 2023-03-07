@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
+	"github.com/nanmu42/etherscan-api"
 	"time"
 
-	"github.com/coherent-api/contract-service/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 	"github.com/spf13/viper"
 )
 
@@ -75,14 +76,11 @@ func setDefaults() {
 	viper.SetDefault("connections_limit", 1000)
 	viper.SetDefault("query_timeout", "10s")
 	viper.SetDefault("period_duration", "1s")
-	viper.SetDefault("etherscan_api_key", "TB2F8U1GE54PA7EE32RUU6MW8Q8PIZNC25")
 	viper.SetDefault("etherscan_rate_milliseconds", 100)
 	viper.SetDefault("etherscan_rate_requests", 200)
 	viper.SetDefault("etherscan_error_sleep", 1000)
 	viper.SetDefault("polygonscan_url", "https://api.polygonscan.com/api?module=contract&action=getsourcecode")
-	viper.SetDefault("polygonscan_api_key", "7C859GNQJRIZ2I5JAGSKNF839NWUH7RD34")
 	viper.SetDefault("polygonscan_timeout", "10s")
-	viper.SetDefault("etherscan_api_key", "XCX3K92XNGNJJRUGS8KBVVX76HJAHGZ57X")
 }
 
 func (c *Config) DSN() string {

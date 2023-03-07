@@ -3,7 +3,7 @@ package abi_client
 import (
 	"context"
 	"encoding/json"
-	"github.com/coherent-api/contract-service/poller/pkg/config"
+	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -12,7 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 
-	"github.com/coherent-api/contract-service/shared/go/constants"
+	"github.com/coherent-api/contract-poller/shared/go/constants"
+	"github.com/nanmu42/etherscan-api"
 )
 
 var (

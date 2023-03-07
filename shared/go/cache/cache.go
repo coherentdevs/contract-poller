@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"github.com/coherent-api/contract-service/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 )
 
 type error interface {

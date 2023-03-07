@@ -1,15 +1,15 @@
 package db
 
 import (
-	"github.com/coherent-api/contract-service/poller/pkg/models"
+	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"strings"
 	"time"
 
 	"google.golang.org/api/option"
 	"gorm.io/gorm/logger"
 
-	"github.com/coherent-api/contract-service/poller/pkg/config"
-	"github.com/coherent-api/contract-service/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/poller/pkg/config"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 
 	"cloud.google.com/go/storage"
 

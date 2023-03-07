@@ -5,7 +5,7 @@ import (
 
 	"github.com/DataDog/datadog-go/v5/statsd"
 
-	"github.com/coherent-api/contract-service/shared/go/service_framework/config"
+	"github.com/coherent-api/contract-poller/shared/go/service_framework/config"
 )
 
 // Metrics wrapper for customized statsd

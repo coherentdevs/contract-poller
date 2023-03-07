@@ -1,1 +1,1 @@
-# contract-service
+# contract-poller

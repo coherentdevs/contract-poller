@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	raw "github.com/coherent-api/contract-service/protos/go/protos/evm/raw"
+	raw "github.com/coherent-api/contract-poller/protos/go/protos/evm/raw"
 	mock "github.com/stretchr/testify/mock"
 )
 
