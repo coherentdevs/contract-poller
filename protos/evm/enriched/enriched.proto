@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package sh.coherent.blockchain.evm.enriched;
+option go_package = "github.com/coherent-api/data-platform/protos/go/evm/enriched";
+
+import "google/protobuf/timestamp.proto";
+
+message Block {
+  string block_hash = 1;
+  int64 block_number = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  repeated Transaction transactions = 4;
+}
+
+message Transaction {
+  repeated AssetTransfer asset_transfers = 1;
+  string from = 2;
+  string gas = 3; // hex string
+  string gas_price = 4; // hex string
+  string hash = 5;
+  string object = 6;
+  string to = 7;
+  string verb = 8;
+}
+
+
+message AssetTransfer {
+  string asset_address = 1; // hex string
+  string amount = 2; // decimal string
+  string asset_name = 3;
+  string from = 4;
+  string to = 5;
+  string standard = 6;
+  string symbol = 7; // might not be able to do symbols since we're not hitting the contract database in enricher
+  string token_id = 8; // decimal string
+}
