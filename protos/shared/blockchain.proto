@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "github.com/coherent-api/contract-poller/protos/go/protos/shared";
+
+enum Blockchain {
+  ETHEREUM = 0;
+  OPTIMISM = 1;
+  POLYGON  = 2;
+  AVALANCHE = 3;
+  ARBITRUM = 4;
+}
