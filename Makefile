@@ -1,4 +1,4 @@
-PROJECT_NAME=coherent-api/data-platform
+PROJECT_NAME=coherent-api/contract-poller
 GO_DIRS=$$(go list -f {{.Dir}} ./... | grep -v ".go")
 GO_TARGETS= ./poller/... ./protos/go/... ./shared/go/...
 CURRENT_BRANCH_LATEST_COMMIT = $(shell git rev-parse HEAD)
