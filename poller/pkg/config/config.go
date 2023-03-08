@@ -75,7 +75,7 @@ func setDefaults() {
 	viper.SetDefault("create_batch_size", 10)
 	viper.SetDefault("connections_limit", 1000)
 	viper.SetDefault("query_timeout", "10s")
-	viper.SetDefault("period_duration", "1s")
+	viper.SetDefault("period_duration", "10s")
 	viper.SetDefault("etherscan_rate_milliseconds", 100)
 	viper.SetDefault("etherscan_rate_requests", 200)
 	viper.SetDefault("etherscan_error_sleep", 1000)

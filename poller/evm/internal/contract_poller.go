@@ -5,7 +5,6 @@ import (
 	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/db"
-	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/go/service_framework"
 )
 
@@ -41,18 +40,19 @@ func (p *contractPoller) Start(ctx context.Context) error {
 func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 	//TODO: Implement this
 	for _, contract := range p.db.Contracts {
-		abi, err := p.etherscanClient.GetContractABI(ctx, contract.Address)
-		if err != nil {
-			return err
-		}
-		contract := &models.Contract{
-			Address: contract.Address,
-			ABI:     abi,
-		}
-		err = p.db.UpdateContractByAddress(contract)
-		if err != nil {
-			return err
-		}
+		//abi, err := p.etherscanClient.GetContractABI(ctx, contract.Address)
+		//if err != nil {
+		//	return err
+		//}
+		//contract := &models.Contract{
+		//	Address: contract.Address,
+		//	ABI:     abi,
+		//}
+		//err = p.db.UpdateContractByAddress(contract)
+		//if err != nil {
+		//	return err
+		//}
+		p.manager.Logger().Infof("Contract Address: %s", contract.Address)
 	}
 	return nil
 }
