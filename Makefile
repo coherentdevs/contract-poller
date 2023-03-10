@@ -34,3 +34,8 @@ infra-up:
 .PHONY: infra-down
 infra-down:
 	docker-compose down
+
+.PHONY: mocks
+mocks:
+	mockery --disable-version-string --all --keeptree --case underscore --dir poller/ --output poller/mocks
+	mockery --disable-version-string --all --keeptree --case underscore --dir shared/go --output shared/go/mocks

@@ -10,8 +10,8 @@ import (
 
 type contractPoller struct {
 	config          *config.Config
-	etherscanClient *abi_client.RateLimitedClient
-	db              *db.DB
+	etherscanClient abi_client.AbiClient
+	db              db.Database
 	manager         *service_framework.Manager
 }
 
@@ -19,15 +19,11 @@ type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-func NewContractPoller(cfg *config.Config, manager *service_framework.Manager) (*contractPoller, error) {
-	etherscanClient := abi_client.NewClient(cfg)
-	db, err := db.NewDB(cfg, manager)
-	if err != nil {
-		return nil, err
-	}
+func NewContractPoller(cfg *config.Config, db *db.DB, client *abi_client.RateLimitedClient, manager *service_framework.Manager) (*contractPoller, error) {
+
 	return &contractPoller{
 		config:          cfg,
-		etherscanClient: etherscanClient,
+		etherscanClient: client,
 		db:              db,
 		manager:         manager,
 	}, nil
@@ -39,7 +35,11 @@ func (p *contractPoller) Start(ctx context.Context) error {
 
 func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 	//TODO: Implement this
-	for _, contract := range p.db.Contracts {
+	contracts, err := p.db.GetContractsToBackfill()
+	if err != nil {
+		return err
+	}
+	for _, contract := range contracts {
 		//abi, err := p.etherscanClient.GetContractABI(ctx, contract.Address)
 		//if err != nil {
 		//	return err

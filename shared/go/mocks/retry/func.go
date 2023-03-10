@@ -14,13 +14,16 @@ func (_m *Func) Execute(attempt int) (bool, error) {
 	ret := _m.Called(attempt)
 
 	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(int) (bool, error)); ok {
+		return rf(attempt)
+	}
 	if rf, ok := ret.Get(0).(func(int) bool); ok {
 		r0 = rf(attempt)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
-	var r1 error
 	if rf, ok := ret.Get(1).(func(int) error); ok {
 		r1 = rf(attempt)
 	} else {

@@ -29,6 +29,14 @@ type RateLimitedClient struct {
 	ErrorSleep        time.Duration
 }
 
+type AbiClient interface {
+	RateLimitedContractSource(ctx context.Context, contractAddress string, attemptCount int, blockchain constants.Blockchain) ([]etherscan.ContractSource, error)
+	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
+	GetContractABI(ctx context.Context, contractAddress string) (string, error)
+	RateLimitedContractABI(ctx context.Context, contractAddress string) (string, error)
+	GetPolygonContractSource(address string) ([]etherscan.ContractSource, error)
+}
+
 func NewClient(cfg *config.Config) *RateLimitedClient {
 	client := etherscan.New(cfg.EtherscanNetwork, cfg.EtherscanAPIKey)
 	rl := rate.NewLimiter(rate.Every(cfg.EtherscanRateMilliseconds*time.Millisecond), cfg.EtherscanRateRequests)
@@ -37,13 +45,14 @@ func NewClient(cfg *config.Config) *RateLimitedClient {
 		IdleConnTimeout: 10 * time.Second,
 	}
 	polygonClient.Timeout = cfg.PolygonscanTimeout
-	return &RateLimitedClient{
+	var abiClient AbiClient = &RateLimitedClient{
 		Client:            client,
 		cfg:               cfg,
 		PolygonscanClient: polygonClient,
 		RateLimiter:       rl,
 		ErrorSleep:        cfg.EtherscanErrorSleep,
 	}
+	return abiClient.(*RateLimitedClient)
 }
 
 /**
