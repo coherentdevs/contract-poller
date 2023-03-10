@@ -45,14 +45,13 @@ func NewClient(cfg *config.Config) *RateLimitedClient {
 		IdleConnTimeout: 10 * time.Second,
 	}
 	polygonClient.Timeout = cfg.PolygonscanTimeout
-	var abiClient AbiClient = &RateLimitedClient{
+	return &RateLimitedClient{
 		Client:            client,
 		cfg:               cfg,
 		PolygonscanClient: polygonClient,
 		RateLimiter:       rl,
 		ErrorSleep:        cfg.EtherscanErrorSleep,
 	}
-	return abiClient.(*RateLimitedClient)
 }
 
 /**
