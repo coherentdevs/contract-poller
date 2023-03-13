@@ -2,11 +2,14 @@ package contract_poller
 
 import (
 	"context"
-	mockAbiClient "github.com/coherent-api/contract-poller/poller/mocks/evm/client/abi_client"
-	mockDatabase "github.com/coherent-api/contract-poller/poller/mocks/pkg/db"
+	mocks "github.com/coherent-api/contract-poller/poller/mocks/evm/internal_"
+	"github.com/coherent-api/contract-poller/poller/pkg/config"
+	"github.com/coherent-api/contract-poller/shared/service_framework"
+
+	//"github.com/coherent-api/contract-poller/poller/evm/internal"
+	//mockDatabase "github.com/coherent-api/contract-poller/poller/mocks"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/go/constants"
-	"github.com/coherent-api/contract-poller/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/shared/constants"
 	"testing"
 )
 
@@ -28,23 +31,35 @@ func TestContractPoller_Start(t *testing.T) {
 		ABI:        testAbi,
 		Decimals:   testDecimals,
 	}
+
+	config := &config.Config{
+		Host:     "mock",
+		User:     "mock",
+		Password: "mock",
+		DBName:   "mock",
+		Port:     8080,
+	}
 	testContracts := []models.Contract{testContract}
 	testEventFragment := &models.EventFragment{EventId: testEventId, ContractAddress: testAddress, ABI: testAbi, Name: testName}
 	testMethodFragment := &models.MethodFragment{MethodId: testMethodId, ABI: testAbi, ContractAddress: testAddress, Name: testName}
 	tests := map[string]struct {
 		mocks func(
 			ctx context.Context,
-			db *mockDatabase.Database,
-			client *mockAbiClient.AbiClient,
+			db *mocks.Database,
+			client *mocks.EvmClient,
 		)
 		wantErr bool
 	}{
 		"happy path: db runs properly and returns expected data": {
 			mocks: func(
 				ctx context.Context,
-				db *mockDatabase.Database,
-				client *mockAbiClient.AbiClient,
+				db *mocks.Database,
+				client *mocks.EvmClient,
 			) {
+				db.On(
+					"GetContractsToBackfill",
+				).Return([]models.Contract{}, nil)
+
 				db.On(
 					"UpsertContracts",
 					testContracts,
@@ -95,17 +110,23 @@ func TestContractPoller_Start(t *testing.T) {
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			db := &mockDatabase.Database{}
-			client := &mockAbiClient.AbiClient{}
-			manager, _ := service_framework.NewManager()
+			db := &mocks.Database{}
+			db.On("GetContractsToBackfill").Return([]models.Contract{{Address: testAddress}}, nil)
+			client := &mocks.EvmClient{}
+			manager, err := service_framework.NewManager()
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			p := &contractPoller{
-				etherscanClient: client,
-				db:              db,
-				manager:         manager,
+				config:    config,
+				evmClient: client,
+				db:        db,
+				manager:   manager,
 			}
 			ctx := context.Background()
 			test.mocks(ctx, db, client)
+
 			if err := p.beginContractBackfiller(ctx); (err != nil) != test.wantErr {
 				t.Errorf("poller.Start() error = %v, wantErr %v", err, test.wantErr)
 			}

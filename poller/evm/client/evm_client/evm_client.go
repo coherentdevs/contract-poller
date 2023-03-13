@@ -1,4 +1,4 @@
-package abi_client
+package evm_client
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 
-	"github.com/coherent-api/contract-poller/shared/go/constants"
+	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/nanmu42/etherscan-api"
 )
 
@@ -27,14 +27,6 @@ type RateLimitedClient struct {
 	PolygonscanClient *http.Client
 	RateLimiter       *rate.Limiter
 	ErrorSleep        time.Duration
-}
-
-type AbiClient interface {
-	RateLimitedContractSource(ctx context.Context, contractAddress string, attemptCount int, blockchain constants.Blockchain) ([]etherscan.ContractSource, error)
-	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
-	GetContractABI(ctx context.Context, contractAddress string) (string, error)
-	RateLimitedContractABI(ctx context.Context, contractAddress string) (string, error)
-	GetPolygonContractSource(address string) ([]etherscan.ContractSource, error)
 }
 
 func NewClient(cfg *config.Config) *RateLimitedClient {

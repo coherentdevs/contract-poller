@@ -9,13 +9,6 @@ import (
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 )
 
-func (db *DB) InsertMethodFragment(methodFragment *models.MethodFragment) error {
-	ctx, cancel := context.WithTimeout(db.manager.Context(), 10*time.Second)
-	defer cancel()
-	result := db.Connection.WithContext(ctx).Save(methodFragment)
-	return db.EmitQueryMetric(result.Error, "InsertMethodFragment")
-}
-
 func (db *DB) UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error) {
 	ctx, cancel := context.WithTimeout(db.manager.Context(), 150*time.Second)
 	defer cancel()

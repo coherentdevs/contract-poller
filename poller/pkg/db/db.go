@@ -3,8 +3,7 @@ package db
 import (
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/go/constants"
-	"github.com/coherent-api/contract-poller/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,26 +18,6 @@ var (
 type DB struct {
 	Connection *gorm.DB
 	manager    *service_framework.Manager
-}
-
-type Database interface {
-	GetContractsToBackfill() ([]models.Contract, error)
-	EmitQueryMetric(err error, query string) error
-	SanitizeString(str string) string
-	UpsertContracts(contracts []models.Contract) (int64, error)
-	GetContract(contractAddress string, blockchain constants.Blockchain) (*models.Contract, error)
-	UpdateContractByAddress(contract *models.Contract) error
-	DeleteContractByAddress(address string) error
-	InsertMethodFragment(methodFragment *models.MethodFragment) error
-	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
-	UpdateMethodFragment(methodFragment *models.MethodFragment) error
-	DeleteMethodFragment(methodFragment *models.MethodFragment) error
-	GetMethodFragmentByID(methodId string) (*models.MethodFragment, error)
-	InsertEventFragment(eventFragment *models.EventFragment) error
-	UpsertEventFragment(eventFragment *models.EventFragment) (int64, error)
-	UpdateEventFragment(eventFragment *models.EventFragment) error
-	DeleteEventFragment(eventFragment *models.EventFragment) error
-	GetEventFragmentById(eventId string) (*models.EventFragment, error)
 }
 
 func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) {
@@ -64,6 +43,14 @@ func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) 
 		Connection: db,
 		manager:    manager,
 	}, nil
+}
+
+func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
+	db, err := NewDB(cfg, manager)
+	if err != nil {
+		manager.Logger().Fatalf("failed to initialize db: %v", err)
+	}
+	return db
 }
 
 func (db *DB) GetContractsToBackfill() ([]models.Contract, error) {

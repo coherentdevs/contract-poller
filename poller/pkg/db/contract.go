@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	"github.com/coherent-api/contract-poller/shared/go/constants"
+	"github.com/coherent-api/contract-poller/shared/constants"
 )
 
 var (

@@ -2,30 +2,53 @@ package contract_poller
 
 import (
 	"context"
-	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
+	"github.com/coherent-api/contract-poller/poller/evm/client/evm_client"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/db"
-	"github.com/coherent-api/contract-poller/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/poller/pkg/models"
+	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/nanmu42/etherscan-api"
 )
 
 type contractPoller struct {
-	config          *config.Config
-	etherscanClient abi_client.AbiClient
-	db              db.Database
-	manager         *service_framework.Manager
+	config    *config.Config
+	evmClient EvmClient
+	db        Database
+	manager   *service_framework.Manager
 }
 
 type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-func NewContractPoller(cfg *config.Config, db *db.DB, client *abi_client.RateLimitedClient, manager *service_framework.Manager) (*contractPoller, error) {
+type EvmClient interface {
+	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
+	GetContractABI(ctx context.Context, contractAddress string) (string, error)
+}
 
+type Database interface {
+	GetContractsToBackfill() ([]models.Contract, error)
+	GetContract(contractAddress string, blockchain constants.Blockchain) (*models.Contract, error)
+	GetEventFragmentById(eventId string) (*models.EventFragment, error)
+	GetMethodFragmentByID(methodId string) (*models.MethodFragment, error)
+	DeleteContractByAddress(address string) error
+	DeleteEventFragment(eventFragment *models.EventFragment) error
+	DeleteMethodFragment(methodFragment *models.MethodFragment) error
+	UpdateContractByAddress(contract *models.Contract) error
+	UpdateMethodFragment(methodFragment *models.MethodFragment) error
+	UpdateEventFragment(eventFragment *models.EventFragment) error
+	UpsertContracts(contracts []models.Contract) (int64, error)
+	UpsertEventFragment(eventFragment *models.EventFragment) (int64, error)
+	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
+}
+
+func NewContractPoller(cfg *config.Config, db *db.DB, client *evm_client.RateLimitedClient, manager *service_framework.Manager) (*contractPoller, error) {
 	return &contractPoller{
-		config:          cfg,
-		etherscanClient: client,
-		db:              db,
-		manager:         manager,
+		config:    cfg,
+		evmClient: client,
+		db:        db,
+		manager:   manager,
 	}, nil
 }
 

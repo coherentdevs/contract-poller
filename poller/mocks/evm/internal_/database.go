@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	constants "github.com/coherent-api/contract-poller/shared/go/constants"
+	constants "github.com/coherent-api/contract-poller/shared/constants"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -50,20 +50,6 @@ func (_m *Database) DeleteMethodFragment(methodFragment *models.MethodFragment) 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*models.MethodFragment) error); ok {
 		r0 = rf(methodFragment)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// EmitQueryMetric provides a mock function with given fields: err, query
-func (_m *Database) EmitQueryMetric(err error, query string) error {
-	ret := _m.Called(err, query)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(error, string) error); ok {
-		r0 = rf(err, query)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -173,48 +159,6 @@ func (_m *Database) GetMethodFragmentByID(methodId string) (*models.MethodFragme
 	}
 
 	return r0, r1
-}
-
-// InsertEventFragment provides a mock function with given fields: eventFragment
-func (_m *Database) InsertEventFragment(eventFragment *models.EventFragment) error {
-	ret := _m.Called(eventFragment)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.EventFragment) error); ok {
-		r0 = rf(eventFragment)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// InsertMethodFragment provides a mock function with given fields: methodFragment
-func (_m *Database) InsertMethodFragment(methodFragment *models.MethodFragment) error {
-	ret := _m.Called(methodFragment)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.MethodFragment) error); ok {
-		r0 = rf(methodFragment)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SanitizeString provides a mock function with given fields: str
-func (_m *Database) SanitizeString(str string) string {
-	ret := _m.Called(str)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(str)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
 }
 
 // UpdateContractByAddress provides a mock function with given fields: contract
