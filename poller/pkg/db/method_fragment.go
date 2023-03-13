@@ -10,7 +10,7 @@ import (
 )
 
 func (db *DB) UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error) {
-	ctx, cancel := context.WithTimeout(db.manager.Context(), 150*time.Second)
+	ctx, cancel := context.WithTimeout(db.manager.Context(), 15*time.Second)
 	defer cancel()
 	result := db.Connection.WithContext(ctx).Clauses(
 		clause.OnConflict{
