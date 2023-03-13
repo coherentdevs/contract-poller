@@ -40,3 +40,18 @@ func (db *DB) GetMethodFragmentByID(methodId string) (*models.MethodFragment, er
 	result := db.Connection.WithContext(ctx).Where("method_id = ?", methodId).First(&methodFragment)
 	return &methodFragment, result.Error
 }
+
+func (db *DB) UpsertMethodFragments(methodFragments []models.MethodFragment) error {
+	db.manager.Logger().Infof("upserting %d method fragments", len(methodFragments))
+	for _, fragment := range methodFragments {
+		fragment.MethodId = db.SanitizeString(fragment.MethodId)
+		fragment.ABI = db.SanitizeString(fragment.ABI)
+		fragment.ContractAddress = db.SanitizeString(fragment.ContractAddress)
+	}
+	result := db.Connection.CreateInBatches(&methodFragments, 1000)
+	if result.Error != nil {
+		db.manager.Logger().Warn(result.Error)
+	}
+
+	return nil
+}

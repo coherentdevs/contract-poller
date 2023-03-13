@@ -39,3 +39,19 @@ func (db *DB) GetEventFragmentById(eventId string) (*models.EventFragment, error
 	}
 	return &eventFragment, nil
 }
+
+func (db *DB) UpsertEventFragments(eventFragments []models.EventFragment) error {
+	db.manager.Logger().Infof("upserting %d event fragments", len(eventFragments))
+	for _, fragment := range eventFragments {
+		fragment.ContractAddress = db.SanitizeString(fragment.ContractAddress)
+		fragment.ABI = db.SanitizeString(fragment.ABI)
+		fragment.EventId = db.SanitizeString(fragment.EventId)
+
+	}
+	result := db.Connection.CreateInBatches(&eventFragments, 1000)
+	if result.Error != nil {
+		db.manager.Logger().Warn(result.Error)
+	}
+
+	return nil
+}
