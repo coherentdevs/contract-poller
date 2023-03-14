@@ -2,6 +2,7 @@ package contract_poller
 
 import (
 	"context"
+	"fmt"
 	mocks "github.com/coherent-api/contract-poller/poller/mocks/evm/internal_"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
@@ -93,20 +94,29 @@ func TestContractPoller_Start(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		//"happy path: client behaves as expected": {
-		//	mocks: func(
-		//		ctx context.Context,
-		//		db *mockDatabase.Database,
-		//		client *mockAbiClient.AbiClient,
-		//	) {
-		//		client.On(
-		//			"GetContractABI",
-		//			ctx,
-		//			testAddress,
-		//		).Return("??????", nil)
-		//	},
-		//	wantErr: true,
-		//},
+		"test for invalid byte sequence": {
+			mocks: func(
+				ctx context.Context,
+				db *mocks.Database,
+				client *mocks.EvmClient,
+			) {
+				db.On(
+					"UpsertMethodFragment",
+					testMethodFragment,
+				).Return(fmt.Errorf("ERROR: invalid byte sequence for encoding \"UTF8\": 0x00 (SQLSTATE 22021)"))
+
+				db.On(
+					"UpsertEventFragment",
+					testEventFragment,
+				).Return(fmt.Errorf("ERROR: invalid byte sequence for encoding \"UTF8\": 0x00 (SQLSTATE 22021)"))
+
+				db.On(
+					"UpsertContracts",
+					testContracts,
+				).Return(fmt.Errorf("ERROR: invalid byte sequence for encoding \"UTF8\": 0x00 (SQLSTATE 22021)"))
+			},
+			wantErr: false,
+		},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
