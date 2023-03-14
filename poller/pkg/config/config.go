@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/nanmu42/etherscan-api"
 	"time"
 
@@ -32,6 +33,8 @@ type Config struct {
 	PolygonscanURL     string
 	PolygonscanAPIKey  string
 	PolygonscanTimeout time.Duration
+
+	Blockchain constants.Blockchain
 }
 
 func NewConfig(manager *service_framework.Manager) *Config {
@@ -62,6 +65,8 @@ func NewConfig(manager *service_framework.Manager) *Config {
 		PolygonscanURL:     viper.GetString("polygonscan_url"),
 		PolygonscanAPIKey:  viper.GetString("polygonscan_api_key"),
 		PolygonscanTimeout: viper.GetDuration("polygonscan_timeout"),
+
+		Blockchain: constants.Blockchain(viper.GetString("blockchain")),
 	}
 }
 
@@ -81,6 +86,7 @@ func setDefaults() {
 	viper.SetDefault("etherscan_error_sleep", 1000)
 	viper.SetDefault("polygonscan_url", "https://api.polygonscan.com/api?module=contract&action=getsourcecode")
 	viper.SetDefault("polygonscan_timeout", "10s")
+	viper.SetDefault("blockchain", "ethereum")
 }
 
 func (c *Config) DSN() string {
