@@ -2,9 +2,7 @@ package contract_poller
 
 import (
 	"context"
-	"github.com/coherent-api/contract-poller/poller/evm/client/evm_client"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
-	"github.com/coherent-api/contract-poller/poller/pkg/db"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
@@ -43,7 +41,7 @@ type Database interface {
 	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
 }
 
-func NewContractPoller(cfg *config.Config, db *db.DB, client *evm_client.RateLimitedClient, manager *service_framework.Manager) (*contractPoller, error) {
+func NewContractPoller(cfg *config.Config, db Database, client EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
 	return &contractPoller{
 		config:    cfg,
 		evmClient: client,
