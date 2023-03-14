@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/DataDog/datadog-go/v5/statsd"
-	"github.com/coherent-api/contract-poller/shared/go/service_framework/config"
+	"github.com/coherent-api/contract-poller/shared/service_framework/config"
 )
 
 type NoopMetrics struct{}

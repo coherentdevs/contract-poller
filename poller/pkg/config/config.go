@@ -5,7 +5,7 @@ import (
 	"github.com/nanmu42/etherscan-api"
 	"time"
 
-	"github.com/coherent-api/contract-poller/shared/go/service_framework"
+	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"github.com/spf13/viper"
 )
 

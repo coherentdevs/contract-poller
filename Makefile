@@ -1,6 +1,6 @@
 PROJECT_NAME=coherent-api/contract-poller
 GO_DIRS=$$(go list -f {{.Dir}} ./... | grep -v ".go")
-GO_TARGETS= ./poller/... ./protos/go/... ./shared/go/...
+GO_TARGETS= ./poller/... ./protos/go/... ./shared/...
 CURRENT_BRANCH_LATEST_COMMIT = $(shell git rev-parse HEAD)
 MAIN_BRANCH_LATEST_COMMIT = $(shell git rev-parse ORIGIN/MAIN)
 LINTER_CONFIG_FILE=.golangci.yaml
@@ -34,3 +34,12 @@ infra-up:
 .PHONY: infra-down
 infra-down:
 	docker-compose down
+
+.PHONY: tests
+tests:
+	go test poller/evm/internal/contract_poller.go poller/evm/internal/contract_poller_test.go
+
+.PHONY: mocks
+mocks:
+	mockery --disable-version-string --all --keeptree --case underscore --dir poller/ --output poller/mocks
+	mockery --disable-version-string --all --keeptree --case underscore --dir shared/ --output shared/mocks

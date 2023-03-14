@@ -12,27 +12,27 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	"github.com/coherent-api/contract-poller/shared/go/constants"
+	"github.com/coherent-api/contract-poller/shared/constants"
 )
 
 var (
 	ErrContractNotFound = errors.New("contract not found in the database")
 )
 
-func (db *DB) validateContract(contract *models.Contract) *models.Contract {
-	return &models.Contract{
-		Address:      db.SanitizeString(contract.Address),
-		CreatedAt:    contract.CreatedAt.Round(0),
-		UpdatedAt:    time.Now().Round(0),
-		Name:         db.SanitizeString(contract.Name),
-		Symbol:       db.SanitizeString(contract.Symbol),
-		OfficialName: db.SanitizeString(contract.OfficialName),
-		Standard:     db.SanitizeString(contract.Standard),
-		ABI:          db.SanitizeString(contract.ABI),
-		Decimals:     contract.Decimals,
-		Blockchain:   contract.Blockchain,
-	}
-}
+//func (db *DB) validateContract(contract *models.Contract) *models.Contract {
+//	return &models.Contract{
+//		Address:      db.SanitizeString(contract.Address),
+//		CreatedAt:    contract.CreatedAt.Round(0),
+//		UpdatedAt:    time.Now().Round(0),
+//		Name:         db.SanitizeString(contract.Name),
+//		Symbol:       db.SanitizeString(contract.Symbol),
+//		OfficialName: db.SanitizeString(contract.OfficialName),
+//		Standard:     db.SanitizeString(contract.Standard),
+//		ABI:          db.SanitizeString(contract.ABI),
+//		Decimals:     contract.Decimals,
+//		Blockchain:   contract.Blockchain,
+//	}
+//}
 
 func (db *DB) UpsertContracts(contracts []models.Contract) (int64, error) {
 	ctx, cancel := context.WithTimeout(db.manager.Context(), 1000*time.Second)

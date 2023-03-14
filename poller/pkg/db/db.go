@@ -1,11 +1,9 @@
 package db
 
 import (
-	"cloud.google.com/go/storage"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/go/service_framework"
-	"google.golang.org/api/option"
+	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,11 +17,7 @@ var (
 
 type DB struct {
 	Connection *gorm.DB
-
-	manager   *service_framework.Manager
-	gcsClient *storage.Client
-
-	Contracts []models.Contract
+	manager    *service_framework.Manager
 }
 
 func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) {
@@ -44,21 +38,28 @@ func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) 
 	sqlDB.SetMaxIdleConns(cfg.ConnectionsLimit)
 	sqlDB.SetConnMaxLifetime(time.Minute)
 	sqlDB.SetConnMaxIdleTime(time.Minute)
-	client, err := storage.NewClient(manager.Context(), option.WithoutAuthentication())
+
+	return &DB{
+		Connection: db,
+		manager:    manager,
+	}, nil
+}
+
+func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
+	db, err := NewDB(cfg, manager)
 	if err != nil {
-		return nil, err
+		manager.Logger().Fatalf("failed to initialize db: %v", err)
 	}
+	return db
+}
+
+func (db *DB) GetContractsToBackfill() ([]models.Contract, error) {
 	//Creates list of contracts we want to poll etherscan for
 	contractList := make([]models.Contract, 0)
 	for _, contractAddress := range TestContracts {
 		contractList = append(contractList, models.Contract{Address: contractAddress})
 	}
-	return &DB{
-		Connection: db,
-		manager:    manager,
-		Contracts:  contractList,
-		gcsClient:  client,
-	}, nil
+	return contractList, nil
 }
 
 func (db *DB) EmitQueryMetric(err error, query string) error {

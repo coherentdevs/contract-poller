@@ -1,4 +1,4 @@
-package abi_client
+package evm_client
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 
-	"github.com/coherent-api/contract-poller/shared/go/constants"
+	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/nanmu42/etherscan-api"
 )
 
