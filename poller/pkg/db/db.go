@@ -17,6 +17,7 @@ var (
 
 type DB struct {
 	Connection *gorm.DB
+	Config     *config.Config
 	manager    *service_framework.Manager
 }
 
@@ -41,6 +42,7 @@ func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) 
 
 	return &DB{
 		Connection: db,
+		Config:     cfg,
 		manager:    manager,
 	}, nil
 }

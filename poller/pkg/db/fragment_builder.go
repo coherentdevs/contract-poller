@@ -3,7 +3,6 @@ package db
 import (
 	"encoding/json"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/crypto"
 	"strings"
@@ -156,11 +155,11 @@ func (db *DB) validateContract(rawAbi string) (*abi.ABI, error) {
 	return &decodedAbi, nil
 }
 
-func (db *DB) BuildFragmentsFromContracts(blockchain constants.Blockchain) error {
+func (db *DB) BuildFragmentsFromContracts() error {
 	start := time.Now()
 	var wg sync.WaitGroup
 	addresses := make([]string, 0)
-	db.Connection.Model(&models.Contract{}).Where("blockchain = ?", blockchain).Pluck("address", &addresses)
+	db.Connection.Model(&models.Contract{}).Where("blockchain = ?", db.Config.Blockchain).Pluck("address", &addresses)
 	db.manager.Logger().Infof("Fetched %d contracts from database", len(addresses))
 
 	batch_size := 10000
@@ -168,7 +167,8 @@ func (db *DB) BuildFragmentsFromContracts(blockchain constants.Blockchain) error
 		methods := make([]models.MethodFragment, 0)
 		events := make([]models.EventFragment, 0)
 		var contracts []models.Contract
-		result := db.Connection.Where("blockchain = ?", blockchain).Limit(batch_size).Offset(batch).Find(&contracts)
+
+		result := db.Connection.Where("blockchain = ?", db.Config.Blockchain).Limit(batch_size).Offset(batch).Find(&contracts)
 		db.manager.Logger().Debug(len(contracts))
 		if result.Error != nil {
 			db.manager.Logger().Errorf("could not fetch abis from contracts table: %v", result.Error)
