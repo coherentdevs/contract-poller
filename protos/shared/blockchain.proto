@@ -1,7 +1,6 @@
 syntax = "proto3";
 
-package sh.coherent.blockchain.shared;
-option go_package = "github.com/coherent-api/data-platform/protos/go/shared";
+option go_package = "github.com/coherent-api/contract-poller/protos/go/protos/shared";
 
 enum Blockchain {
   ETHEREUM = 0;

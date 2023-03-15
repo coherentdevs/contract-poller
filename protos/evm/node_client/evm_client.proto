@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package sh.coherent.evm_client.shared;
+
+option go_package = "github.com/coherent-api/protos/go/protos/evm/node_client";
+
+import "protos/shared/blockchain.proto";
+
+service EVMClient {
+  rpc GetContract (GetContractRequest) returns (GetContractResponse) {}
+}
+
+message GetContractRequest {
+  string address = 1;
+  Blockchain blockchain = 2;
+}
+
+message GetContractResponse {
+  enum AddressType {
+    USER = 0;
+    CONTRACT = 1;
+    ERC20 = 2;
+    ERC721 = 3;
+    ERC1155 = 4;
+  }
+
+  string address = 1;
+  AddressType type = 2;
+  string name = 3;
+  string symbol = 4;
+  int32 decimals = 5;
+  bytes bytecode = 6;
+}

@@ -10,17 +10,18 @@ import (
 )
 
 type contractPoller struct {
-	config    *config.Config
-	evmClient EvmClient
-	db        Database
-	manager   *service_framework.Manager
+	config     *config.Config
+	evmClient  AbiClient
+	nodeClient EvmClient
+	db         Database
+	manager    *service_framework.Manager
 }
 
 type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-type EvmClient interface {
+type AbiClient interface {
 	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
 	GetContractABI(ctx context.Context, contractAddress string) (string, error)
 }
@@ -41,12 +42,17 @@ type Database interface {
 	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
 }
 
-func NewContractPoller(cfg *config.Config, db Database, client EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
+type EvmClient interface {
+	GetContract(ctx context.Context, contractAddress string) (*models.Contract, error)
+}
+
+func NewContractPoller(cfg *config.Config, db Database, evmClient AbiClient, nodeClient EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
 	return &contractPoller{
-		config:    cfg,
-		evmClient: client,
-		db:        db,
-		manager:   manager,
+		config:     cfg,
+		evmClient:  evmClient,
+		nodeClient: nodeClient,
+		db:         db,
+		manager:    manager,
 	}, nil
 }
 
