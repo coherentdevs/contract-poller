@@ -10,11 +10,11 @@ import (
 )
 
 type contractPoller struct {
-	config     *config.Config
-	evmClient  AbiClient
-	nodeClient EvmClient
-	db         Database
-	manager    *service_framework.Manager
+	config    *config.Config
+	abiClient AbiClient
+	evmClient EvmClient
+	db        Database
+	manager   *service_framework.Manager
 }
 
 type ContractPoller interface {
@@ -43,16 +43,16 @@ type Database interface {
 }
 
 type EvmClient interface {
-	GetContract(ctx context.Context, contractAddress string) (*models.Contract, error)
+	GetContract(contractAddress string) (*models.Contract, error)
 }
 
-func NewContractPoller(cfg *config.Config, db Database, evmClient AbiClient, nodeClient EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
+func NewContractPoller(cfg *config.Config, db Database, abiClient AbiClient, evmClient EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
 	return &contractPoller{
-		config:     cfg,
-		evmClient:  evmClient,
-		nodeClient: nodeClient,
-		db:         db,
-		manager:    manager,
+		config:    cfg,
+		abiClient: abiClient,
+		evmClient: evmClient,
+		db:        db,
+		manager:   manager,
 	}, nil
 }
 

@@ -13,7 +13,7 @@ import (
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 )
 
-type nodeClient struct {
+type evmClient struct {
 	url          string
 	parsedClient *ethclient.Client
 
@@ -36,7 +36,7 @@ func getNode(config *Config, blockchain constants.Blockchain) string {
 	return ""
 }
 
-func NewClient(config *Config, manager *service_framework.Manager) (*nodeClient, error) {
+func NewClient(config *Config, manager *service_framework.Manager) (*evmClient, error) {
 	url := getNode(config, config.Blockchain)
 	parsedClient, err := ethclient.Dial(url)
 	if err != nil {
@@ -48,7 +48,7 @@ func NewClient(config *Config, manager *service_framework.Manager) (*nodeClient,
 		Timeout: time.Second * 300,
 	}
 
-	return &nodeClient{
+	return &evmClient{
 		url:          url,
 		httpClient:   httpClient,
 		parsedClient: parsedClient,
@@ -57,7 +57,7 @@ func NewClient(config *Config, manager *service_framework.Manager) (*nodeClient,
 	}, nil
 }
 
-func MustNewClient(config *Config, manager *service_framework.Manager) *nodeClient {
+func MustNewClient(config *Config, manager *service_framework.Manager) *evmClient {
 	client, err := NewClient(config, manager)
 	if err != nil {
 		manager.Logger().With(err).Fatal("Failed to instantiate node client")
@@ -65,7 +65,7 @@ func MustNewClient(config *Config, manager *service_framework.Manager) *nodeClie
 	return client
 }
 
-func (c *nodeClient) GetContract(address string) (*models.Contract, error) {
+func (c *evmClient) GetContract(address string) (*models.Contract, error) {
 	ctx := context.Background()
 	contractReq := &protos.GetContractRequest{
 		Address:    address,

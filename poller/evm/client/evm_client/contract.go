@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func (c *nodeClient) GetContractFromNode(ctx context.Context, req *protos.GetContractRequest) (*protos.GetContractResponse, error) {
+func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetContractRequest) (*protos.GetContractResponse, error) {
 	resp := &protos.GetContractResponse{Address: req.Address}
 
 	address := common.HexToAddress(req.Address)
