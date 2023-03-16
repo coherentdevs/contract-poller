@@ -13,7 +13,6 @@ type Config struct {
 
 	EthNodeRPC                string
 	PolyNodeRPC               string
-	GoerliNodeRPC             string
 	OptNodeRPC                string
 	EnrichTransactionsTimeout time.Duration
 
@@ -29,7 +28,6 @@ func NewConfig() *Config {
 		EthNodeRPC:                viper.GetString("ethereum_node_rpc_endpoint"),
 		OptNodeRPC:                viper.GetString("optimism_node_rpc_endpoint"),
 		PolyNodeRPC:               viper.GetString("polygon_node_rpc_endpoint"),
-		GoerliNodeRPC:             viper.GetString("goerli_node_rpc_endpoint"),
 		EnrichTransactionsTimeout: viper.GetDuration("enrich_transactions_timeout"),
 		FetchBlockTimeout:         viper.GetDuration("fetch_block_timeout"),
 	}

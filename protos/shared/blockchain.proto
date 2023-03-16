@@ -8,5 +8,4 @@ enum Blockchain {
   POLYGON  = 2;
   AVALANCHE = 3;
   ARBITRUM = 4;
-  GOERLI = 5;
 }

@@ -30,8 +30,6 @@ func getNode(config *Config, blockchain constants.Blockchain) string {
 		return config.OptNodeRPC
 	case constants.Polygon:
 		return config.PolyNodeRPC
-	case constants.Goerli:
-		return config.GoerliNodeRPC
 	}
 	return ""
 }

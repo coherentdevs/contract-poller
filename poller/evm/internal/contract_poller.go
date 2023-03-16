@@ -67,18 +67,8 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 		return err
 	}
 	for _, contract := range contracts {
-		//abi, err := p.etherscanClient.GetContractABI(ctx, contract.Address)
-		//if err != nil {
-		//	return err
-		//}
-		//contract := &models.Contract{
-		//	Address: contract.Address,
-		//	ABI:     abi,
-		//}
-		//err = p.db.UpdateContractByAddress(contract)
-		//if err != nil {
-		//	return err
-		//}
+		//TODO: given a contract, populate all fields in the contract model
+		//TODO: on a new abi, create fragments for all methods and events
 		p.manager.Logger().Infof("Contract Address: %s", contract.Address)
 	}
 	return nil
