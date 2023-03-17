@@ -3,8 +3,6 @@ package evm_client
 import (
 	"context"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	protos "github.com/coherent-api/contract-poller/protos/go/protos/evm/node_client"
-	"github.com/coherent-api/contract-poller/protos/go/protos/shared"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"net/http"
 	"time"
@@ -21,6 +19,30 @@ type evmClient struct {
 	config     *Config
 	blockchain constants.Blockchain
 }
+
+type GetContractRequest struct {
+	Address    string
+	Blockchain constants.Blockchain
+}
+
+type GetContractResponse struct {
+	Address  string
+	Name     string
+	Symbol   string
+	Type     AddressType
+	Decimals int32
+	Bytecode []byte
+}
+
+type AddressType int32
+
+const (
+	AddressType_USER     AddressType = 0
+	AddressType_CONTRACT AddressType = 1
+	AddressType_ERC20    AddressType = 2
+	AddressType_ERC721   AddressType = 3
+	AddressType_ERC1155  AddressType = 4
+)
 
 func getNode(config *Config, blockchain constants.Blockchain) string {
 	switch blockchain {
@@ -65,9 +87,9 @@ func MustNewClient(config *Config, manager *service_framework.Manager) *evmClien
 
 func (c *evmClient) GetContract(address string) (*models.Contract, error) {
 	ctx := context.Background()
-	contractReq := &protos.GetContractRequest{
+	contractReq := &GetContractRequest{
 		Address:    address,
-		Blockchain: shared.Blockchain(shared.Blockchain_value[c.blockchain.GetSymbol()]),
+		Blockchain: c.blockchain,
 	}
 
 	contractResp, err := c.GetContractFromNode(ctx, contractReq)

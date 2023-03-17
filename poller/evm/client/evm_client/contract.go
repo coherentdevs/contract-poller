@@ -8,12 +8,11 @@ import (
 	"github.com/metachris/eth-go-bindings/erc20"
 	"github.com/metachris/eth-go-bindings/erc721"
 
-	protos "github.com/coherent-api/contract-poller/protos/go/protos/evm/node_client"
 	"strings"
 )
 
-func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetContractRequest) (*protos.GetContractResponse, error) {
-	resp := &protos.GetContractResponse{Address: req.Address}
+func (c *evmClient) GetContractFromNode(ctx context.Context, req *GetContractRequest) (*GetContractResponse, error) {
+	resp := &GetContractResponse{Address: req.Address}
 
 	address := common.HexToAddress(req.Address)
 
@@ -23,7 +22,7 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 		return nil, err
 	}
 	if len(bytes) == 0 {
-		resp.Type = protos.GetContractResponse_USER
+		resp.Type = AddressType_USER
 		return resp, nil
 	}
 
@@ -34,7 +33,7 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 	if err == nil {
 		if isERC20(token) {
 			// name, symbol, decimals are optional fields for ERC20
-			resp.Type = protos.GetContractResponse_ERC20
+			resp.Type = AddressType_ERC20
 			name, err := token.Name(nil)
 			if err != nil {
 				return nil, err
@@ -50,10 +49,10 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 				return nil, err
 			}
 			resp.Decimals = int32(decimals)
-			resp.Name = sanitizeString(resp.GetName())
-			resp.Symbol = sanitizeString(resp.GetSymbol())
+			resp.Name = sanitizeString(resp.Name)
+			resp.Symbol = sanitizeString(resp.Symbol)
 		} else {
-			resp.Type = protos.GetContractResponse_CONTRACT
+			resp.Type = AddressType_CONTRACT
 		}
 	}
 
@@ -61,7 +60,7 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 	if err == nil {
 		supportsInterface, err := erc721Token.SupportsInterface(nil, erc165.InterfaceIdErc721)
 		if err == nil && supportsInterface {
-			resp.Type = protos.GetContractResponse_ERC721
+			resp.Type = AddressType_ERC721
 			name, err := erc721Token.Name(nil)
 			if err != nil {
 				return nil, err
@@ -74,8 +73,8 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 			resp.Symbol = symbol
 			resp.Decimals = 0
 
-			resp.Name = sanitizeString(resp.GetName())
-			resp.Symbol = sanitizeString(resp.GetSymbol())
+			resp.Name = sanitizeString(resp.Name)
+			resp.Symbol = sanitizeString(resp.Symbol)
 
 			return resp, nil
 		}
@@ -85,11 +84,11 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *protos.GetCont
 	if err == nil {
 		supportsInterface, err := erc1155Token.SupportsInterface(nil, erc165.InterfaceIdErc1155)
 		if err == nil && supportsInterface {
-			resp.Type = protos.GetContractResponse_ERC1155
+			resp.Type = AddressType_ERC1155
 			return resp, nil
 		}
 	} else if err != nil {
-		resp.Type = protos.GetContractResponse_CONTRACT
+		resp.Type = AddressType_CONTRACT
 		return resp, err
 	}
 
