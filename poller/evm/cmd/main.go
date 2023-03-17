@@ -17,10 +17,7 @@ func main() {
 	config := cfg.NewConfig(manager)
 	abiClient := abi_client.NewClient(config)
 	evmCfg := evm_client.NewConfig()
-	evmClient, err := evm_client.NewClient(evmCfg, manager)
-	if err != nil {
-		manager.Logger().With(err).Fatal("Failed to instantiate node client")
-	}
+	evmClient := evm_client.MustNewClient(evmCfg, manager)
 	db := db.MustNewDB(config, manager)
 	contractPoller, err := contractPoller.NewContractPoller(config, db, abiClient, evmClient, manager)
 	if err != nil {
