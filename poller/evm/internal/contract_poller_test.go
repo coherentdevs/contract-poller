@@ -46,7 +46,7 @@ func TestContractPoller_Start(t *testing.T) {
 		mocks func(
 			ctx context.Context,
 			db *mocks.Database,
-			client *mocks.EvmClient,
+			client *mocks.AbiClient,
 		)
 		wantErr bool
 	}{
@@ -54,7 +54,7 @@ func TestContractPoller_Start(t *testing.T) {
 			mocks: func(
 				ctx context.Context,
 				db *mocks.Database,
-				client *mocks.EvmClient,
+				client *mocks.AbiClient,
 			) {
 				db.On(
 					"GetContractsToBackfill",
@@ -112,7 +112,7 @@ func TestContractPoller_Start(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			db := &mocks.Database{}
 			db.On("GetContractsToBackfill").Return([]models.Contract{{Address: testAddress}}, nil)
-			client := &mocks.EvmClient{}
+			client := &mocks.AbiClient{}
 			manager, err := service_framework.NewManager()
 			if err != nil {
 				t.Fatal(err)

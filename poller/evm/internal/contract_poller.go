@@ -11,6 +11,7 @@ import (
 
 type contractPoller struct {
 	config    *config.Config
+	abiClient AbiClient
 	evmClient EvmClient
 	db        Database
 	manager   *service_framework.Manager
@@ -20,7 +21,7 @@ type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-type EvmClient interface {
+type AbiClient interface {
 	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
 	GetContractABI(ctx context.Context, contractAddress string) (string, error)
 }
@@ -41,10 +42,15 @@ type Database interface {
 	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
 }
 
-func NewContractPoller(cfg *config.Config, db Database, client EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
+type EvmClient interface {
+	GetContract(contractAddress string) (*models.Contract, error)
+}
+
+func NewContractPoller(cfg *config.Config, db Database, abiClient AbiClient, evmClient EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
 	return &contractPoller{
 		config:    cfg,
-		evmClient: client,
+		abiClient: abiClient,
+		evmClient: evmClient,
 		db:        db,
 		manager:   manager,
 	}, nil
@@ -61,18 +67,8 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 		return err
 	}
 	for _, contract := range contracts {
-		//abi, err := p.etherscanClient.GetContractABI(ctx, contract.Address)
-		//if err != nil {
-		//	return err
-		//}
-		//contract := &models.Contract{
-		//	Address: contract.Address,
-		//	ABI:     abi,
-		//}
-		//err = p.db.UpdateContractByAddress(contract)
-		//if err != nil {
-		//	return err
-		//}
+		//TODO: given a contract, populate all fields in the contract model
+		//TODO: on a new abi, create fragments for all methods and events
 		p.manager.Logger().Infof("Contract Address: %s", contract.Address)
 	}
 	return nil

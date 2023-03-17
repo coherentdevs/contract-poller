@@ -4,7 +4,6 @@ var WETHMapping = map[Blockchain]string{
 	Ethereum: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 	Polygon:  "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
 	Optimism: "0x4200000000000000000000000000000000000006",
-	Goerli:   "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 }
 
 var USDCMapping = map[Blockchain]string{
@@ -28,7 +27,6 @@ const (
 	NativeEthType        = "ETH"
 	NativePolygonSymbol  = "MATIC"
 	NativeOptimismSymbol = "ETH"
-	NativeGoerliSymbol   = "ETH"
 	NativeToken          = "native_token"
 	NativeTransfer       = "transfer"
 

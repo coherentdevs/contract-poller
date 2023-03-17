@@ -3,12 +3,7 @@
 package mocks
 
 import (
-	context "context"
-
-	constants "github.com/coherent-api/contract-poller/shared/constants"
-
-	etherscan "github.com/nanmu42/etherscan-api"
-
+	models "github.com/coherent-api/contract-poller/poller/pkg/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -17,47 +12,25 @@ type EvmClient struct {
 	mock.Mock
 }
 
-// ContractSource provides a mock function with given fields: ctx, contractAddress, blockchain
-func (_m *EvmClient) ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error) {
-	ret := _m.Called(ctx, contractAddress, blockchain)
+// GetContract provides a mock function with given fields: contractAddress
+func (_m *EvmClient) GetContract(contractAddress string) (*models.Contract, error) {
+	ret := _m.Called(contractAddress)
 
-	var r0 etherscan.ContractSource
+	var r0 *models.Contract
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, constants.Blockchain) (etherscan.ContractSource, error)); ok {
-		return rf(ctx, contractAddress, blockchain)
+	if rf, ok := ret.Get(0).(func(string) (*models.Contract, error)); ok {
+		return rf(contractAddress)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, constants.Blockchain) etherscan.ContractSource); ok {
-		r0 = rf(ctx, contractAddress, blockchain)
+	if rf, ok := ret.Get(0).(func(string) *models.Contract); ok {
+		r0 = rf(contractAddress)
 	} else {
-		r0 = ret.Get(0).(etherscan.ContractSource)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Contract)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, constants.Blockchain) error); ok {
-		r1 = rf(ctx, contractAddress, blockchain)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetContractABI provides a mock function with given fields: ctx, contractAddress
-func (_m *EvmClient) GetContractABI(ctx context.Context, contractAddress string) (string, error) {
-	ret := _m.Called(ctx, contractAddress)
-
-	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
-		return rf(ctx, contractAddress)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
-		r0 = rf(ctx, contractAddress)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, contractAddress)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(contractAddress)
 	} else {
 		r1 = ret.Error(1)
 	}
