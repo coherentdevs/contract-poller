@@ -77,14 +77,6 @@ func NewClient(config *Config, manager *service_framework.Manager) (*evmClient, 
 	}, nil
 }
 
-func MustNewClient(config *Config, manager *service_framework.Manager) *evmClient {
-	client, err := NewClient(config, manager)
-	if err != nil {
-		manager.Logger().With(err).Fatal("Failed to instantiate node client")
-	}
-	return client
-}
-
 func (c *evmClient) GetContract(address string) (*models.Contract, error) {
 	ctx := context.Background()
 	contractReq := &GetContractRequest{
