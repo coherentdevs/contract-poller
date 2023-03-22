@@ -43,3 +43,7 @@ tests:
 mocks:
 	mockery --disable-version-string --all --keeptree --case underscore --dir poller/ --output poller/mocks
 	mockery --disable-version-string --all --keeptree --case underscore --dir shared/ --output shared/mocks
+
+.PHONY: db-migrate
+db-migrate:
+	go run poller/scripts/db_migrate/cmd/main.go

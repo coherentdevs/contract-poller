@@ -15,7 +15,8 @@ func main() {
 		manager.Logger().Fatalf("error starting API manage: %v", err)
 	}
 	config := cfg.NewConfig(manager)
-	abiClient := abi_client.NewClient(config)
+	abiCfg := abi_client.NewConfig()
+	abiClient := abi_client.NewClient(abiCfg)
 	evmCfg := evm_client.NewConfig()
 	evmClient := evm_client.MustNewClient(evmCfg, manager)
 	db := db.MustNewDB(config, manager)

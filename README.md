@@ -1,7 +1,7 @@
 # contract-poller
 
 ## Overview
-> Service that sources and stores contract data
+Service that sources and stores contract data
 
 ## Repository Structure
 Our main service is the poller which serves as how we find and load contracts and their corresponding ABIs into the database. The poller is a go service that runs on a cron job and is responsible for finding new contracts and loading them into the database. 
@@ -16,6 +16,8 @@ ETHEREUM_NODE_RPC_ENDPOINT={INSERT YOUR ETHEREUM NODE RPC ENDPOINT HERE}
 OPTIMISM_NODE_RPC_ENDPOINT={INSERT YOUR OPTIMISM NODE RPC ENDPOINT HERE}
 POLYGON_NODE_RPC_ENDPOINT={INSERT YOUR POLYGON NODE RPC ENDPOINT HERE}
 ```
+
+## Setting up the DB
 
 ### Setting up the DB locally
 

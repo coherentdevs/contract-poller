@@ -7,6 +7,12 @@ import (
 	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"github.com/nanmu42/etherscan-api"
+	"github.com/pkg/errors"
+	"strings"
+)
+
+var (
+	ErrContractNotVerified = errors.New("contract source code not verified")
 )
 
 type contractPoller struct {
@@ -69,29 +75,36 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 	for _, contract := range contracts {
 		contractMetadata, err := p.evmClient.GetContract(contract.Address)
 		if err != nil {
-			p.manager.Logger().Errorf("error getting contract metadata from evm client: %v", err)
-			continue
+			return err
 		}
-		contractAbi, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
+		p.manager.Logger().Infof("contract metadata: %+v", contractMetadata)
+		abiResp, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
 		if err != nil {
-			p.manager.Logger().Errorf("error getting contract metadata from evm client: %v", err)
-			continue
+			return err
+		}
+		abi := ""
+		officialName := ""
+		if !errors.Is(err, ErrContractNotVerified) {
+			officialName = abiResp.ContractName
+		}
+		if !(abiResp.ABI == "Contract source code not verified") && !(abiResp.ABI == "") {
+			abi = abiResp.ABI
 		}
 		updatedContract := &models.Contract{
-			Address:      contract.Address,
+			Address:      strings.ToLower(contract.Address),
 			Blockchain:   p.config.Blockchain,
 			Name:         contractMetadata.Name,
 			Symbol:       contractMetadata.Symbol,
-			OfficialName: contractAbi.ContractName,
+			OfficialName: officialName,
 			Standard:     contractMetadata.Standard,
-			ABI:          contractAbi.ABI,
+			ABI:          abi,
 			Decimals:     contractMetadata.Decimals,
 		}
 		updatedContracts = append(updatedContracts, *updatedContract)
 	}
 	numContracts, err := p.db.UpsertContracts(updatedContracts)
 	if err != nil {
-		p.manager.Logger().Errorf("error upserting contracts: %v", err)
+		return err
 	}
 	p.manager.Logger().Infof("upserted %d contracts", numContracts)
 	return nil
