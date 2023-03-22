@@ -47,3 +47,7 @@ mocks:
 .PHONY: db-migrate
 db-migrate:
 	go run poller/scripts/db_migrate/cmd/main.go
+
+.PHONY: fragment-backfiller
+fragment-backfiller:
+    go run poller/evm/cmd/fragment_backfiller/main.go
