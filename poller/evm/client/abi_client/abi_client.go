@@ -3,9 +3,7 @@ package abi_client
 import (
 	"context"
 	"encoding/json"
-	"log"
 
-	//"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -76,7 +74,6 @@ func (r *RateLimitedClient) RateLimitedContractSource(ctx context.Context, contr
 			return nil, err
 		}
 	default:
-		log.Println("Contract Address: ", contractAddress)
 		contractSources, err = r.Client.ContractSource(contractAddress)
 		if err != nil {
 			if errors.Is(err, ErrEtherscanServerNotOK) && attemptCount < 5 {
