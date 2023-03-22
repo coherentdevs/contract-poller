@@ -61,15 +61,38 @@ func (p *contractPoller) Start(ctx context.Context) error {
 }
 
 func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
-	//TODO: Implement this
 	contracts, err := p.db.GetContractsToBackfill()
 	if err != nil {
 		return err
 	}
+	updatedContracts := make([]models.Contract, 0)
 	for _, contract := range contracts {
-		//TODO: given a contract, populate all fields in the contract model
-		//TODO: on a new abi, create fragments for all methods and events
-		p.manager.Logger().Infof("Contract Address: %s", contract.Address)
+		contractMetadata, err := p.evmClient.GetContract(contract.Address)
+		if err != nil {
+			p.manager.Logger().Errorf("error getting contract metadata from evm client: %v", err)
+			continue
+		}
+		contractAbi, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
+		if err != nil {
+			p.manager.Logger().Errorf("error getting contract metadata from evm client: %v", err)
+			continue
+		}
+		updatedContract := &models.Contract{
+			Address:      contract.Address,
+			Blockchain:   p.config.Blockchain,
+			Name:         contractMetadata.Name,
+			Symbol:       contractMetadata.Symbol,
+			OfficialName: contractAbi.ContractName,
+			Standard:     contractMetadata.Standard,
+			ABI:          contractAbi.ABI,
+			Decimals:     contractMetadata.Decimals,
+		}
+		updatedContracts = append(updatedContracts, *updatedContract)
 	}
+	numContracts, err := p.db.UpsertContracts(updatedContracts)
+	if err != nil {
+		p.manager.Logger().Errorf("error upserting contracts: %v", err)
+	}
+	p.manager.Logger().Infof("upserted %d contracts", numContracts)
 	return nil
 }
