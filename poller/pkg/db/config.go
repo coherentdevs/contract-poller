@@ -21,6 +21,7 @@ type Config struct {
 	QueryTimeout                  time.Duration
 	PeriodDuration                time.Duration
 	FragmentBuilderPeriodDuration time.Duration
+	FragmentBatchSize             int
 
 	manager *service_framework.Manager
 
@@ -44,6 +45,7 @@ func NewConfig(manager *service_framework.Manager) *Config {
 		QueryTimeout:                  viper.GetDuration("query_timeout"),
 		PeriodDuration:                viper.GetDuration("period_duration"),
 		FragmentBuilderPeriodDuration: viper.GetDuration("fragment_builder_period_duration"),
+		FragmentBatchSize:             viper.GetInt("fragment_batch_size"),
 
 		manager: manager,
 
@@ -63,6 +65,7 @@ func setDefaults() {
 	viper.SetDefault("query_timeout", "10s")
 	viper.SetDefault("period_duration", "10s")
 	viper.SetDefault("fragment_builder_period_duration", "1000000s")
+	viper.SetDefault("fragment_batch_size", 10000)
 	viper.SetDefault("blockchain", "ethereum")
 }
 
