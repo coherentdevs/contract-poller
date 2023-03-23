@@ -104,14 +104,15 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 		}
 		updatedContracts = append(updatedContracts, *updatedContract)
 	}
-	err = p.db.UpdateContractsToBackfill(updatedContracts)
-	if err != nil {
-		return err
+	backfillErr := p.db.UpdateContractsToBackfill(updatedContracts)
+	numContracts, upsertErr := p.db.UpsertContracts(updatedContracts)
+	if upsertErr != nil {
+		return upsertErr
 	}
-	numContracts, err := p.db.UpsertContracts(updatedContracts)
-	if err != nil {
-		return err
+	if backfillErr != nil {
+		return backfillErr
 	}
+
 	p.manager.Logger().Infof("upserted %d contracts", numContracts)
 	return nil
 }
