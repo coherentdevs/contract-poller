@@ -50,4 +50,4 @@ db-migrate:
 
 .PHONY: fragment-backfiller
 fragment-backfiller:
-    go run poller/evm/cmd/fragment_backfiller/main.go
+	go run poller/scripts/fragment_backfiller/cmd/main.go

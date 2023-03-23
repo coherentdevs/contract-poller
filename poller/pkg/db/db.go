@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	TestContracts = []string{"0x00000000006c3852cbef3e08e8df289169ede581", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"}
+	TestContracts = []string{"0x00000000006c3852cbef3e08e8df289169ede581", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 )
 
 type DB struct {
@@ -57,7 +57,7 @@ func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
 }
 
 func (db *DB) GetContractsToBackfill() ([]models.Contract, error) {
-	//Creates list of contracts we want to poll etherscan for
+	//TODO: Temporary solution for local development. This should be replaced with a query to the database
 	contractList := make([]models.Contract, 0)
 	for _, contractAddress := range TestContracts {
 		contractList = append(contractList, models.Contract{Address: contractAddress})
@@ -79,4 +79,25 @@ func (db *DB) SanitizeString(str string) string {
 
 func (db *DB) StartFragmentBackfiller(ctx context.Context) error {
 	return db.BuildFragmentsFromContracts(ctx)
+}
+
+func (db *DB) UpdateContractsToBackfill(updatedContracts []models.Contract) error {
+	//TODO: This is used for local development. GetContractsToBackfill should handle this
+	contractsToBackfill := make([]string, 0)
+	for _, contract := range updatedContracts {
+		if !contains(TestContracts, contract.Address) {
+			contractsToBackfill = append(contractsToBackfill, contract.Address)
+		}
+	}
+	TestContracts = contractsToBackfill
+	return nil
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }

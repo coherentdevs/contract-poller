@@ -34,6 +34,7 @@ type AbiClient interface {
 
 type Database interface {
 	GetContractsToBackfill() ([]models.Contract, error)
+	UpdateContractsToBackfill(contracts []models.Contract) error
 	GetContract(contractAddress string, blockchain constants.Blockchain) (*models.Contract, error)
 	GetEventFragmentById(eventId string) (*models.EventFragment, error)
 	GetMethodFragmentByID(methodId string) (*models.MethodFragment, error)
@@ -75,12 +76,13 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 	for _, contract := range contracts {
 		contractMetadata, err := p.evmClient.GetContract(contract.Address)
 		if err != nil {
-			return err
+			p.manager.Logger().Errorf("error from EVM Client: %v", err)
+			continue
 		}
-		p.manager.Logger().Infof("contract metadata: %+v", contractMetadata)
 		abiResp, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
 		if err != nil {
-			return err
+			p.manager.Logger().Errorf("error from ABI Client: %v", err)
+			continue
 		}
 		abi := ""
 		officialName := ""
@@ -101,6 +103,10 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 			Decimals:     contractMetadata.Decimals,
 		}
 		updatedContracts = append(updatedContracts, *updatedContract)
+	}
+	err = p.db.UpdateContractsToBackfill(updatedContracts)
+	if err != nil {
+		return err
 	}
 	numContracts, err := p.db.UpsertContracts(updatedContracts)
 	if err != nil {
