@@ -175,6 +175,20 @@ func (_m *Database) UpdateContractByAddress(contract *models.Contract) error {
 	return r0
 }
 
+// UpdateContractsToBackfill provides a mock function with given fields: contracts
+func (_m *Database) UpdateContractsToBackfill(contracts []models.Contract) error {
+	ret := _m.Called(contracts)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]models.Contract) error); ok {
+		r0 = rf(contracts)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateEventFragment provides a mock function with given fields: eventFragment
 func (_m *Database) UpdateEventFragment(eventFragment *models.EventFragment) error {
 	ret := _m.Called(eventFragment)

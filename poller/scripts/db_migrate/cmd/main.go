@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 
-	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	database "github.com/coherent-api/contract-poller/poller/pkg/db"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
@@ -15,7 +14,7 @@ func main() {
 		log.Fatalf("error creating new manager in db: %v", err)
 	}
 
-	cfg := config.NewConfig(manager)
+	cfg := database.NewConfig(manager)
 	db := database.MustNewDB(cfg, manager)
 
 	if err := db.Connection.AutoMigrate(

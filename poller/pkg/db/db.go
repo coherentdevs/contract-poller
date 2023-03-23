@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"gorm.io/driver/postgres"
@@ -18,11 +17,11 @@ var (
 
 type DB struct {
 	Connection *gorm.DB
-	Config     *config.Config
+	Config     *Config
 	manager    *service_framework.Manager
 }
 
-func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) {
+func NewDB(cfg *Config, manager *service_framework.Manager) (*DB, error) {
 	db, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{
 		Logger:          logger.Default.LogMode(logger.Silent),
 		CreateBatchSize: cfg.CreateBatchSize,
@@ -48,7 +47,7 @@ func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) 
 	}, nil
 }
 
-func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
+func MustNewDB(cfg *Config, manager *service_framework.Manager) *DB {
 	db, err := NewDB(cfg, manager)
 	if err != nil {
 		manager.Logger().Fatalf("failed to initialize db: %v", err)

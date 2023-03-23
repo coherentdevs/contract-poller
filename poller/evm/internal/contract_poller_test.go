@@ -42,11 +42,6 @@ func TestContractPoller_Start(t *testing.T) {
 	abiClientResp := etherscan.ContractSource{ABI: testAbi, ContractName: testName}
 
 	config := &config.Config{
-		Host:       "mock",
-		User:       "mock",
-		Password:   "mock",
-		DBName:     "mock",
-		Port:       8080,
 		Blockchain: testBlockchain,
 	}
 	testContracts := []models.Contract{testContract}
@@ -111,6 +106,7 @@ func TestContractPoller_Start(t *testing.T) {
 			ctx := context.Background()
 			db := &mocks.Database{}
 			db.On("GetContractsToBackfill").Return([]models.Contract{{Address: testAddress}}, nil)
+			db.On("UpdateContractsToBackfill", []models.Contract{{Address: testAddress, Blockchain: testBlockchain, OfficialName: testName, Name: testName, ABI: testAbi, Standard: constants.ERC20, Symbol: testSymbol, Decimals: testDecimals}}).Return(nil)
 			evmClient := &mocks.EvmClient{}
 			evmClient.On("GetContract", testAddress).Return(&evmClientResp, nil)
 			abiClient := &mocks.AbiClient{}
