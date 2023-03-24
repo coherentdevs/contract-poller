@@ -5,9 +5,8 @@ import (
 	mocks "github.com/coherent-api/contract-poller/poller/mocks/evm/internal_"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/nanmu42/etherscan-api"
 
-	//"github.com/coherent-api/contract-poller/poller/evm/internal"
-	//mockDatabase "github.com/coherent-api/contract-poller/poller/mocks"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/constants"
 	"testing"
@@ -23,21 +22,27 @@ func TestContractPoller_Start(t *testing.T) {
 	testDecimals := int32(18)
 	testAbi := `[{"inputs":[{"internalType":"uint256","name":"a","type":"uint256"}],"name":"test","outputs":[],"stateMutability":"nonpayable","type":"function"}]`
 	testContract := models.Contract{
+		Address:      testAddress,
+		Blockchain:   testBlockchain,
+		Name:         testName,
+		OfficialName: testName,
+		Symbol:       testSymbol,
+		Standard:     constants.ERC20,
+		ABI:          testAbi,
+		Decimals:     testDecimals,
+	}
+	evmClientResp := models.Contract{
 		Address:    testAddress,
 		Blockchain: testBlockchain,
 		Name:       testName,
 		Symbol:     testSymbol,
 		Standard:   constants.ERC20,
-		ABI:        testAbi,
 		Decimals:   testDecimals,
 	}
+	abiClientResp := etherscan.ContractSource{ABI: testAbi, ContractName: testName}
 
 	config := &config.Config{
-		Host:     "mock",
-		User:     "mock",
-		Password: "mock",
-		DBName:   "mock",
-		Port:     8080,
+		Blockchain: testBlockchain,
 	}
 	testContracts := []models.Contract{testContract}
 	testEventFragment := &models.EventFragment{EventId: testEventId, ContractAddress: testAddress, ABI: testAbi, Name: testName}
@@ -46,7 +51,8 @@ func TestContractPoller_Start(t *testing.T) {
 		mocks func(
 			ctx context.Context,
 			db *mocks.Database,
-			client *mocks.AbiClient,
+			abiClient *mocks.AbiClient,
+			evmClient *mocks.EvmClient,
 		)
 		wantErr bool
 	}{
@@ -54,7 +60,8 @@ func TestContractPoller_Start(t *testing.T) {
 			mocks: func(
 				ctx context.Context,
 				db *mocks.Database,
-				client *mocks.AbiClient,
+				abiClient *mocks.AbiClient,
+				evmClient *mocks.EvmClient,
 			) {
 				db.On(
 					"GetContractsToBackfill",
@@ -63,17 +70,17 @@ func TestContractPoller_Start(t *testing.T) {
 				db.On(
 					"UpsertContracts",
 					testContracts,
-				).Return(nil)
+				).Return(int64(1), nil)
 
 				db.On(
 					"UpsertEventFragment",
 					testEventFragment,
-				).Return(nil)
+				).Return(int64(1), nil)
 
 				db.On(
 					"UpsertMethodFragment",
 					testMethodFragment,
-				).Return(nil)
+				).Return(int64(1), nil)
 
 				db.On(
 					"GetContract",
@@ -93,26 +100,17 @@ func TestContractPoller_Start(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		//"happy path: client behaves as expected": {
-		//	mocks: func(
-		//		ctx context.Context,
-		//		db *mockDatabase.Database,
-		//		client *mockAbiClient.AbiClient,
-		//	) {
-		//		client.On(
-		//			"GetContractABI",
-		//			ctx,
-		//			testAddress,
-		//		).Return("??????", nil)
-		//	},
-		//	wantErr: true,
-		//},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
 			db := &mocks.Database{}
 			db.On("GetContractsToBackfill").Return([]models.Contract{{Address: testAddress}}, nil)
-			client := &mocks.AbiClient{}
+			db.On("UpdateContractsToBackfill", []models.Contract{{Address: testAddress, Blockchain: testBlockchain, OfficialName: testName, Name: testName, ABI: testAbi, Standard: constants.ERC20, Symbol: testSymbol, Decimals: testDecimals}}).Return(nil)
+			evmClient := &mocks.EvmClient{}
+			evmClient.On("GetContract", testAddress).Return(&evmClientResp, nil)
+			abiClient := &mocks.AbiClient{}
+			abiClient.On("ContractSource", ctx, testAddress, testBlockchain).Return(abiClientResp, nil)
 			manager, err := service_framework.NewManager()
 			if err != nil {
 				t.Fatal(err)
@@ -120,12 +118,12 @@ func TestContractPoller_Start(t *testing.T) {
 
 			p := &contractPoller{
 				config:    config,
-				evmClient: client,
+				evmClient: evmClient,
+				abiClient: abiClient,
 				db:        db,
 				manager:   manager,
 			}
-			ctx := context.Background()
-			test.mocks(ctx, db, client)
+			test.mocks(ctx, db, abiClient, evmClient)
 
 			if err := p.beginContractBackfiller(ctx); (err != nil) != test.wantErr {
 				t.Errorf("poller.Start() error = %v, wantErr %v", err, test.wantErr)

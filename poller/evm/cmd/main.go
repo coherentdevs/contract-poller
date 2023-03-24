@@ -14,15 +14,17 @@ func main() {
 	if err != nil {
 		manager.Logger().Fatalf("error starting API manage: %v", err)
 	}
+	dbConfig := db.NewConfig(manager)
 	config := cfg.NewConfig(manager)
-	abiClient := abi_client.NewClient(config)
+	abiCfg := abi_client.NewConfig()
+	abiClient := abi_client.NewClient(abiCfg)
 	evmCfg := evm_client.NewConfig()
 	evmClient := evm_client.MustNewClient(evmCfg, manager)
-	db := db.MustNewDB(config, manager)
+	db := db.MustNewDB(dbConfig, manager)
 	contractPoller, err := contractPoller.NewContractPoller(config, db, abiClient, evmClient, manager)
 	if err != nil {
 		manager.Logger().Fatalf("could not initialize poller %v", err)
 	}
-	manager.PeriodicService(manager.Config.AppName, contractPoller.Start, config.PeriodDuration)
+	manager.PeriodicService(manager.Config.AppName, contractPoller.Start, dbConfig.PeriodDuration)
 	manager.WaitForInterrupt()
 }

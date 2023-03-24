@@ -3,7 +3,7 @@ package abi_client
 import (
 	"context"
 	"encoding/json"
-	"github.com/coherent-api/contract-poller/poller/pkg/config"
+
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -21,7 +21,7 @@ var (
 )
 
 type RateLimitedClient struct {
-	cfg *config.Config
+	cfg *Config
 
 	Client            *etherscan.Client
 	PolygonscanClient *http.Client
@@ -29,7 +29,7 @@ type RateLimitedClient struct {
 	ErrorSleep        time.Duration
 }
 
-func NewClient(cfg *config.Config) *RateLimitedClient {
+func NewClient(cfg *Config) *RateLimitedClient {
 	client := etherscan.New(cfg.EtherscanNetwork, cfg.EtherscanAPIKey)
 	rl := rate.NewLimiter(rate.Every(cfg.EtherscanRateMilliseconds*time.Millisecond), cfg.EtherscanRateRequests)
 	polygonClient := http.DefaultClient

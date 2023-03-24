@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -155,14 +156,14 @@ func (db *DB) validateContract(rawAbi string) (*abi.ABI, error) {
 	return &decodedAbi, nil
 }
 
-func (db *DB) BuildFragmentsFromContracts() error {
+func (db *DB) BuildFragmentsFromContracts(ctx context.Context) error {
 	start := time.Now()
 	var wg sync.WaitGroup
 	addresses := make([]string, 0)
 	db.Connection.Model(&models.Contract{}).Where("blockchain = ?", db.Config.Blockchain).Pluck("address", &addresses)
 	db.manager.Logger().Infof("Fetched %d contracts from database", len(addresses))
 
-	batch_size := 10000
+	batch_size := db.Config.FragmentBatchSize
 	for batch := 0; batch < len(addresses); batch += batch_size {
 		methods := make([]models.MethodFragment, 0)
 		events := make([]models.EventFragment, 0)

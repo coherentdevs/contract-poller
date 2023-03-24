@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/coherent-api/contract-poller/poller/pkg/config"
+	"context"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"gorm.io/driver/postgres"
@@ -12,16 +12,16 @@ import (
 )
 
 var (
-	TestContracts = []string{"0x00000000006c3852cbef3e08e8df289169ede581", "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45", "0xdac17f958d2ee523a2206206994597c13d831ec7", "0x7a250d5630b4cf539739df2c5dacb4c659f2488d", "0xef1c6e67703c7bd7107eed8303fbe6ec2554bf6b", "0x06450dee7fd2fb8e39061434babcfc05599a6fb8", "0x000000000000ad05ccc4f10045630fb830b95127", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "0x881d40237659c251811cec9c364ef91dc08d300c", "0x0de8bf93da2f7eecb3d9169422413a9bef4ef628", "0x1111111254fb6c44bac0bed2854e76f90643097d", "0x83c8f28c26bf6aaca652df1dbbe0e1b56f8baba2", "0x283af0b28c62c092c9727f1ee09c02ca627eb7f5", "0x5e4e65926ba27467555eb562121fac00d24e9dd2", "0x1c479675ad559dc151f6ec7ed3fbf8cee79582b6", "0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43", "0xe66b31678d6c16e9ebf358268a790b763c133750", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "0x0a252663dbcc0b073063d6420a40319e438cfa59", "0x44e94034afce2dd3cd5eb62528f239686fc8f162", "0x1111111254eeb25477b68fb85ed929f73a960582", "0xc36442b4a4522e871399cd717abdd847ab11fe88", "0x39da41747a83aee658334415666f3ef92dd0d541"}
+	TestContracts = []string{"0x00000000006c3852cbef3e08e8df289169ede581", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}
 )
 
 type DB struct {
 	Connection *gorm.DB
-	Config     *config.Config
+	Config     *Config
 	manager    *service_framework.Manager
 }
 
-func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) {
+func NewDB(cfg *Config, manager *service_framework.Manager) (*DB, error) {
 	db, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{
 		Logger:          logger.Default.LogMode(logger.Silent),
 		CreateBatchSize: cfg.CreateBatchSize,
@@ -47,7 +47,7 @@ func NewDB(cfg *config.Config, manager *service_framework.Manager) (*DB, error) 
 	}, nil
 }
 
-func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
+func MustNewDB(cfg *Config, manager *service_framework.Manager) *DB {
 	db, err := NewDB(cfg, manager)
 	if err != nil {
 		manager.Logger().Fatalf("failed to initialize db: %v", err)
@@ -56,7 +56,7 @@ func MustNewDB(cfg *config.Config, manager *service_framework.Manager) *DB {
 }
 
 func (db *DB) GetContractsToBackfill() ([]models.Contract, error) {
-	//Creates list of contracts we want to poll etherscan for
+	//TODO: Temporary solution for local development. This should be replaced with a query to the database
 	contractList := make([]models.Contract, 0)
 	for _, contractAddress := range TestContracts {
 		contractList = append(contractList, models.Contract{Address: contractAddress})
@@ -74,4 +74,29 @@ func (db *DB) EmitQueryMetric(err error, query string) error {
 
 func (db *DB) SanitizeString(str string) string {
 	return strings.ToValidUTF8(strings.ReplaceAll(str, "\x00", ""), "")
+}
+
+func (db *DB) StartFragmentBackfiller(ctx context.Context) error {
+	return db.BuildFragmentsFromContracts(ctx)
+}
+
+func (db *DB) UpdateContractsToBackfill(updatedContracts []models.Contract) error {
+	//TODO: This is used for local development. GetContractsToBackfill should handle this
+	contractsToBackfill := make([]string, 0)
+	for _, contract := range updatedContracts {
+		if !contains(TestContracts, contract.Address) {
+			contractsToBackfill = append(contractsToBackfill, contract.Address)
+		}
+	}
+	TestContracts = contractsToBackfill
+	return nil
+}
+
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
