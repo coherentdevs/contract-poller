@@ -1,7 +1,8 @@
-package evm_client
+package node_client
 
 import (
 	"context"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/metachris/eth-go-bindings/erc1155"
 	"github.com/metachris/eth-go-bindings/erc165"
