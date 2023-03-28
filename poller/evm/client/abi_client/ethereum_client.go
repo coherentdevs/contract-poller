@@ -23,7 +23,7 @@ type EthereumClient struct {
 	ErrorSleep time.Duration
 }
 
-func NewEthereumClient(cfg *Config) (*EthereumClient, error) {
+func NewEthereum(cfg *Config) (*EthereumClient, error) {
 
 	if cfg.EtherscanNetwork == "" {
 		return nil, fmt.Errorf("etherscan network is not defined")

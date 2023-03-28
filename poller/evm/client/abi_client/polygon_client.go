@@ -27,8 +27,8 @@ type PolygonClient struct {
 	ErrorSleep        time.Duration
 }
 
-func NewPolygonClient(cfg *Config) (*PolygonClient, error) {
-	// rl := rate.NewLimiter(rate.Every(cfg.EtherscanRateMilliseconds*time.Millisecond), cfg.EtherscanRateRequests)
+func NewPolygon(cfg *Config) (*PolygonClient, error) {
+	// rl :=
 	polygonClient := http.DefaultClient
 	polygonClient.Transport = &http.Transport{
 		IdleConnTimeout: 10 * time.Second,

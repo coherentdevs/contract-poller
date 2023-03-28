@@ -12,18 +12,18 @@ type Client interface {
 	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
 }
 
-func MustNewClient(cfg *Config, manager *service_framework.Manager) Client {
+func MustNew(cfg *Config, manager *service_framework.Manager) Client {
 	var client Client
 	var err error
 
 	switch cfg.Blockchain {
 	case constants.Ethereum:
-		client, err = NewEthereumClient(cfg)
+		client, err = NewEthereum(cfg)
 		if err != nil {
 			manager.Logger().With(err).Fatal("Failed to instantiate eth abi client")
 		}
 	case constants.Polygon:
-		client, err = NewPolygonClient(cfg)
+		client, err = NewPolygon(cfg)
 		if err != nil {
 			manager.Logger().With(err).Fatal("Failed to instantiate polygon abi client")
 		}

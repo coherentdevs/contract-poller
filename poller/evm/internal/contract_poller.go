@@ -17,8 +17,8 @@ var (
 
 type contractPoller struct {
 	config      *config.Config
-	abiClient   AbiClient
-	evmClient   EvmClient
+	abiClient   ABIClient
+	evmClient   EVMClient
 	db          Database
 	manager     *service_framework.Manager
 	rateLimiter *rate.Limiter

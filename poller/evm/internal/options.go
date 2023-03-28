@@ -6,7 +6,7 @@ import (
 
 type opt func(p *contractPoller)
 
-func WithAbiClient(a AbiClient) opt {
+func WithABIClient(a ABIClient) opt {
 	return func(p *contractPoller) {
 		p.abiClient = a
 	}
@@ -16,7 +16,7 @@ func WithRateLimiter(r *rate.Limiter) opt {
 		p.rateLimiter = r
 	}
 }
-func WithNodeClient(e EvmClient) opt {
+func WithNodeClient(e EVMClient) opt {
 	return func(p *contractPoller) {
 		p.evmClient = e
 	}
