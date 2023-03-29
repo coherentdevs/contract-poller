@@ -20,7 +20,7 @@ func main() {
 	dbConfig := db.NewConfig(manager)
 	config := cfg.NewConfig(manager)
 	abiCfg := abi_client.NewConfig()
-	abiClient := contractPoller.MustNewABIClient(abiCfg, manager)
+	abiClient := contractPoller.MustNewABIClient(abiCfg.Blockchain, abiCfg, manager.Logger())
 	evmCfg := node_client.NewConfig()
 	evmClient := node_client.MustNewClient(evmCfg, manager)
 	db := db.MustNewDB(dbConfig, manager)
@@ -28,11 +28,11 @@ func main() {
 
 	contractPoller := contractPoller.NewContractPoller(
 		config,
-		manager,
 		contractPoller.WithABIClient(abiClient),
 		contractPoller.WithDatabase(db),
 		contractPoller.WithNodeClient(evmClient),
 		contractPoller.WithRateLimiter(rateLimiter),
+		contractPoller.WithLogger(manager.Logger()),
 	)
 
 	if err != nil {

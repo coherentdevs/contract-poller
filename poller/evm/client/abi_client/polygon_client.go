@@ -28,7 +28,6 @@ type PolygonClient struct {
 }
 
 func NewPolygon(cfg *Config) (*PolygonClient, error) {
-	// rl :=
 	polygonClient := http.DefaultClient
 	polygonClient.Transport = &http.Transport{
 		IdleConnTimeout: 10 * time.Second,
@@ -93,7 +92,11 @@ func (r *PolygonClient) getPolygonContractSource(address string) ([]etherscan.Co
 	request.Header.Add("Content-Type", "application/json")
 	response, err := r.PolygonscanClient.Do(request)
 
-	if err != nil || response.StatusCode != http.StatusOK {
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request to polyscan returned a non 200 status code: %d", response.StatusCode)
+	}
+
+	if err != nil {
 		return nil, err
 	}
 

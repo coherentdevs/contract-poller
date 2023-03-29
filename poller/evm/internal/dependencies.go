@@ -6,7 +6,7 @@ import (
 	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/constants"
-	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/datadaodevs/go-service-framework/util"
 	"github.com/nanmu42/etherscan-api"
 )
 
@@ -35,20 +35,20 @@ type EVMClient interface {
 	GetContract(contractAddress string) (*models.Contract, error)
 }
 
-func MustNewABIClient(cfg *abi_client.Config, manager *service_framework.Manager) ABIClient {
+func MustNewABIClient(blockchain constants.Blockchain, cfg *abi_client.Config, logger util.Logger) ABIClient {
 	var client ABIClient
 	var err error
 
-	switch cfg.Blockchain {
+	switch blockchain {
 	case constants.Ethereum:
 		client, err = abi_client.NewEthereum(cfg)
 		if err != nil {
-			manager.Logger().With(err).Fatal("Failed to instantiate eth abi client")
+			logger.Fatalf("Failed to instantiate eth abi client: %v", err)
 		}
 	case constants.Polygon:
 		client, err = abi_client.NewPolygon(cfg)
 		if err != nil {
-			manager.Logger().With(err).Fatal("Failed to instantiate polygon abi client")
+			logger.Fatalf("Failed to instantiate polygon abi client: %v", err)
 		}
 	}
 	return client
