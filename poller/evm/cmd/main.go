@@ -1,12 +1,15 @@
 package main
 
 import (
+	"time"
+
 	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
-	"github.com/coherent-api/contract-poller/poller/evm/client/evm_client"
+	node_client "github.com/coherent-api/contract-poller/poller/evm/client/node_client"
 	contractPoller "github.com/coherent-api/contract-poller/poller/evm/internal"
 	cfg "github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/db"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -17,11 +20,21 @@ func main() {
 	dbConfig := db.NewConfig(manager)
 	config := cfg.NewConfig(manager)
 	abiCfg := abi_client.NewConfig()
-	abiClient := abi_client.NewClient(abiCfg)
-	evmCfg := evm_client.NewConfig()
-	evmClient := evm_client.MustNewClient(evmCfg, manager)
+	abiClient := contractPoller.MustNewABIClient(abiCfg, manager)
+	evmCfg := node_client.NewConfig()
+	evmClient := node_client.MustNewClient(evmCfg, manager)
 	db := db.MustNewDB(dbConfig, manager)
-	contractPoller, err := contractPoller.NewContractPoller(config, db, abiClient, evmClient, manager)
+	rateLimiter := rate.NewLimiter(rate.Every(abiCfg.AbiClientRateMilliseconds*time.Millisecond), abiCfg.AbiClientRateRequests)
+
+	contractPoller := contractPoller.NewContractPoller(
+		config,
+		manager,
+		contractPoller.WithABIClient(abiClient),
+		contractPoller.WithDatabase(db),
+		contractPoller.WithNodeClient(evmClient),
+		contractPoller.WithRateLimiter(rateLimiter),
+	)
+
 	if err != nil {
 		manager.Logger().Fatalf("could not initialize poller %v", err)
 	}

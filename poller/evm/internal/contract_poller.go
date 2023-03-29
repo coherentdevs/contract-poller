@@ -2,13 +2,13 @@ package contract_poller
 
 import (
 	"context"
+	"strings"
+
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
-	"github.com/nanmu42/etherscan-api"
 	"github.com/pkg/errors"
-	"strings"
+	"golang.org/x/time/rate"
 )
 
 var (
@@ -16,51 +16,28 @@ var (
 )
 
 type contractPoller struct {
-	config    *config.Config
-	abiClient AbiClient
-	evmClient EvmClient
-	db        Database
-	manager   *service_framework.Manager
+	config      *config.Config
+	abiClient   ABIClient
+	evmClient   EVMClient
+	db          Database
+	manager     *service_framework.Manager
+	rateLimiter *rate.Limiter
 }
 
 type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-type AbiClient interface {
-	ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error)
-	GetContractABI(ctx context.Context, contractAddress string) (string, error)
-}
+func NewContractPoller(cfg *config.Config, manager *service_framework.Manager, opts ...opt) *contractPoller {
+	p := &contractPoller{
+		config:  cfg,
+		manager: manager,
+	}
 
-type Database interface {
-	GetContractsToBackfill() ([]models.Contract, error)
-	UpdateContractsToBackfill(contracts []models.Contract) error
-	GetContract(contractAddress string, blockchain constants.Blockchain) (*models.Contract, error)
-	GetEventFragmentById(eventId string) (*models.EventFragment, error)
-	GetMethodFragmentByID(methodId string) (*models.MethodFragment, error)
-	DeleteContractByAddress(address string) error
-	DeleteEventFragment(eventFragment *models.EventFragment) error
-	DeleteMethodFragment(methodFragment *models.MethodFragment) error
-	UpdateContractByAddress(contract *models.Contract) error
-	UpdateMethodFragment(methodFragment *models.MethodFragment) error
-	UpdateEventFragment(eventFragment *models.EventFragment) error
-	UpsertContracts(contracts []models.Contract) (int64, error)
-	UpsertEventFragment(eventFragment *models.EventFragment) (int64, error)
-	UpsertMethodFragment(methodFragment *models.MethodFragment) (int64, error)
-}
-
-type EvmClient interface {
-	GetContract(contractAddress string) (*models.Contract, error)
-}
-
-func NewContractPoller(cfg *config.Config, db Database, abiClient AbiClient, evmClient EvmClient, manager *service_framework.Manager) (*contractPoller, error) {
-	return &contractPoller{
-		config:    cfg,
-		abiClient: abiClient,
-		evmClient: evmClient,
-		db:        db,
-		manager:   manager,
-	}, nil
+	for _, fn := range opts {
+		fn(p)
+	}
+	return p
 }
 
 func (p *contractPoller) Start(ctx context.Context) error {
@@ -74,6 +51,11 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 	}
 	updatedContracts := make([]models.Contract, 0)
 	for _, contract := range contracts {
+
+		if err := p.rateLimiter.Wait(ctx); err != nil {
+			return err
+		}
+
 		contractMetadata, err := p.evmClient.GetContract(contract.Address)
 		if err != nil {
 			p.manager.Logger().Errorf("error from EVM Client: %v", err)

@@ -1,4 +1,4 @@
-package evm_client
+package node_client
 
 import (
 	"github.com/spf13/viper"

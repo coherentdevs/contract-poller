@@ -1,11 +1,12 @@
-package evm_client
+package node_client
 
 import (
 	"context"
-	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"net/http"
 	"time"
+
+	"github.com/coherent-api/contract-poller/poller/pkg/models"
+	"github.com/ethereum/go-ethereum/ethclient"
 
 	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"

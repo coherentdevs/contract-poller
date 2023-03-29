@@ -1,16 +1,17 @@
 package abi_client
 
 import (
+	"time"
+
 	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/nanmu42/etherscan-api"
 	"github.com/spf13/viper"
-	"time"
 )
 
 type Config struct {
 	EtherscanAPIKey           string
-	EtherscanRateMilliseconds time.Duration
-	EtherscanRateRequests     int
+	AbiClientRateMilliseconds time.Duration
+	AbiClientRateRequests     int
 	EtherscanErrorSleep       time.Duration
 	EtherscanNetwork          etherscan.Network
 
@@ -27,8 +28,8 @@ func NewConfig() *Config {
 	viper.AutomaticEnv()
 	return &Config{
 		EtherscanAPIKey:           viper.GetString("etherscan_api_key"),
-		EtherscanRateMilliseconds: viper.GetDuration("etherscan_rate_milliseconds"),
-		EtherscanRateRequests:     viper.GetInt("etherscan_rate_requests"),
+		AbiClientRateMilliseconds: viper.GetDuration("abi_client_rate_milliseconds"),
+		AbiClientRateRequests:     viper.GetInt("abi_client_rate_requests"),
 		EtherscanErrorSleep:       viper.GetDuration("etherscan_error_sleep"),
 		EtherscanNetwork:          etherscan.Network(viper.GetString("etherscan_network")),
 
@@ -41,8 +42,8 @@ func NewConfig() *Config {
 }
 
 func setDefaults() {
-	viper.SetDefault("etherscan_rate_milliseconds", 100)
-	viper.SetDefault("etherscan_rate_requests", 200)
+	viper.SetDefault("abi_client_rate_milliseconds", 100)
+	viper.SetDefault("abi_client_rate_requests", 200)
 	viper.SetDefault("etherscan_error_sleep", 1000)
 	viper.SetDefault("etherscan_network", "api") //api - ethereum; api-optimistic - optimism
 	viper.SetDefault("polygonscan_url", "https://api.polygonscan.com/api?module=contract&action=getsourcecode")
