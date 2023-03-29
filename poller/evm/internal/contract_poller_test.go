@@ -2,14 +2,16 @@ package contract_poller
 
 import (
 	"context"
+
 	mocks "github.com/coherent-api/contract-poller/poller/mocks/evm/internal_"
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"github.com/nanmu42/etherscan-api"
 
+	"testing"
+
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/constants"
-	"testing"
 )
 
 func TestContractPoller_Start(t *testing.T) {
@@ -121,7 +123,7 @@ func TestContractPoller_Start(t *testing.T) {
 				evmClient: evmClient,
 				abiClient: abiClient,
 				db:        db,
-				manager:   manager,
+				logger:    manager.Logger(),
 			}
 			test.mocks(ctx, db, abiClient, evmClient)
 

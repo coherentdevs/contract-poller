@@ -1,6 +1,7 @@
 package contract_poller
 
 import (
+	"github.com/datadaodevs/go-service-framework/util"
 	"golang.org/x/time/rate"
 )
 
@@ -24,5 +25,11 @@ func WithNodeClient(e EVMClient) opt {
 func WithDatabase(db Database) opt {
 	return func(p *contractPoller) {
 		p.db = db
+	}
+}
+
+func WithLogger(l util.Logger) opt {
+	return func(p *contractPoller) {
+		p.logger = l
 	}
 }

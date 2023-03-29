@@ -6,7 +6,7 @@ import (
 
 	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/datadaodevs/go-service-framework/util"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 )
@@ -20,7 +20,7 @@ type contractPoller struct {
 	abiClient   ABIClient
 	evmClient   EVMClient
 	db          Database
-	manager     *service_framework.Manager
+	logger      util.Logger
 	rateLimiter *rate.Limiter
 }
 
@@ -28,10 +28,9 @@ type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-func NewContractPoller(cfg *config.Config, manager *service_framework.Manager, opts ...opt) *contractPoller {
+func NewContractPoller(cfg *config.Config, opts ...opt) *contractPoller {
 	p := &contractPoller{
-		config:  cfg,
-		manager: manager,
+		config: cfg,
 	}
 
 	for _, fn := range opts {
@@ -58,12 +57,12 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 
 		contractMetadata, err := p.evmClient.GetContract(contract.Address)
 		if err != nil {
-			p.manager.Logger().Errorf("error from EVM Client: %v", err)
+			p.logger.Errorf("error from EVM Client: %v", err)
 			continue
 		}
 		abiResp, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
 		if err != nil {
-			p.manager.Logger().Errorf("error from ABI Client: %v", err)
+			p.logger.Errorf("error from ABI Client: %v", err)
 			continue
 		}
 		abi := ""
@@ -95,6 +94,6 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 		return backfillErr
 	}
 
-	p.manager.Logger().Infof("upserted %d contracts", numContracts)
+	p.logger.Infof("upserted %d contracts", numContracts)
 	return nil
 }
