@@ -15,10 +15,9 @@ import (
 type evmClient struct {
 	url          string
 	parsedClient *ethclient.Client
-
-	httpClient *http.Client
-	config     *Config
-	blockchain constants.Blockchain
+	httpClient   *http.Client
+	config       *Config
+	blockchain   constants.Blockchain
 }
 
 type GetContractRequest struct {

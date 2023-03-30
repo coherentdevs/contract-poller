@@ -12,6 +12,10 @@ import (
 	"strings"
 )
 
+const (
+	owner = "0xe7A91167c495D881A58b56e780Bd6B1F51A3500e"
+)
+
 func (c *evmClient) GetContractFromNode(ctx context.Context, req *GetContractRequest) (*GetContractResponse, error) {
 	resp := &GetContractResponse{Address: req.Address}
 
@@ -98,11 +102,11 @@ func (c *evmClient) GetContractFromNode(ctx context.Context, req *GetContractReq
 
 // Rough check if it's an ERC20 if it has some key reader interface methods
 func isERC20(token *erc20.Erc20) bool {
-	if _, err := token.BalanceOf(nil, common.HexToAddress("0xe7A91167c495D881A58b56e780Bd6B1F51A3500e")); err != nil {
+	if _, err := token.BalanceOf(nil, common.HexToAddress(owner)); err != nil {
 		return false
 	} else if _, err := token.TotalSupply(nil); err != nil {
 		return false
-	} else if _, err := token.Allowance(nil, common.HexToAddress("0xe7A91167c495D881A58b56e780Bd6B1F51A3500e"), common.HexToAddress("0xe7A91167c495D881A58b56e780Bd6B1F51A3500e")); err != nil {
+	} else if _, err := token.Allowance(nil, common.HexToAddress(owner), common.HexToAddress(owner)); err != nil {
 		return false
 	}
 	return true

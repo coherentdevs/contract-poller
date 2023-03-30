@@ -14,12 +14,11 @@ type Config struct {
 	AbiClientRateRequests     int
 	EtherscanErrorSleep       time.Duration
 	EtherscanNetwork          etherscan.Network
-
-	PolygonscanURL     string
-	PolygonscanAPIKey  string
-	PolygonscanTimeout time.Duration
-
-	Blockchain constants.Blockchain
+	PolygonscanURL            string
+	PolygonscanAPIKey         string
+	PolygonscanTimeout        time.Duration
+	Blockchain                constants.Blockchain
+	HTTPRetries               int
 }
 
 func NewConfig() *Config {

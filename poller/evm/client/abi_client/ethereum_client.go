@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/retry"
 	"github.com/nanmu42/etherscan-api"
 )
 
@@ -16,14 +17,13 @@ var (
 	ErrEtherscanServerNotOK = errors.New("etherscan server: NOTOK")
 )
 
-type EthereumClient struct {
-	cfg *Config
+type ethereumClient struct {
+	HTTPRetries int
 
-	Client     *etherscan.Client
-	ErrorSleep time.Duration
+	Client *etherscan.Client
 }
 
-func NewEthereum(cfg *Config) (*EthereumClient, error) {
+func NewEthereum(cfg *Config) (*ethereumClient, error) {
 
 	if cfg.EtherscanNetwork == "" {
 		return nil, fmt.Errorf("etherscan network is not defined")
@@ -34,36 +34,34 @@ func NewEthereum(cfg *Config) (*EthereumClient, error) {
 	}
 
 	client := etherscan.New(cfg.EtherscanNetwork, cfg.EtherscanAPIKey)
-	return &EthereumClient{
-		Client:     client,
-		cfg:        cfg,
-		ErrorSleep: cfg.EtherscanErrorSleep,
+	return &ethereumClient{
+		Client:      client,
+		HTTPRetries: cfg.HTTPRetries,
 	}, nil
 }
 
 /**
  * Get the contract source code from etherscan
  */
-func (r *EthereumClient) ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error) {
-	contractSources, err := r.rateLimitedContractSource(ctx, contractAddress, 0, blockchain)
-	if err != nil {
-		return etherscan.ContractSource{}, err
-	}
-	return contractSources[0], nil
-}
-
-func (r *EthereumClient) rateLimitedContractSource(ctx context.Context, contractAddress string, attemptCount int, blockchain constants.Blockchain) ([]etherscan.ContractSource, error) {
+func (e *ethereumClient) ContractSource(ctx context.Context, contractAddress string, blockchain constants.Blockchain) (etherscan.ContractSource, error) {
 	var contractSources []etherscan.ContractSource
-	var err error
 
-	contractSources, err = r.Client.ContractSource(contractAddress)
-	if err != nil {
-		if errors.Is(err, ErrEtherscanServerNotOK) && attemptCount < 5 {
-			time.Sleep(r.ErrorSleep * time.Millisecond)
-			return r.rateLimitedContractSource(ctx, contractAddress, attemptCount+1, blockchain)
+	err := retry.Exec(e.HTTPRetries, func(attempt int) (bool, error) {
+		var err error
+		contractSources, err = e.Client.ContractSource(contractAddress)
+
+		isRetriableErr := (err != nil && errors.Is(err, ErrEtherscanServerNotOK))
+
+		if isRetriableErr {
+			exp := time.Duration(2 ^ (attempt - 1))
+			time.Sleep(exp * time.Second)
 		}
-		return nil, err
+		return (attempt < e.HTTPRetries && isRetriableErr), err
+	})
+
+	if err != nil {
+		return etherscan.ContractSource{}, fmt.Errorf("failed to get contract resource for contract: %s: %v", contractAddress, err)
 	}
 
-	return contractSources, nil
+	return contractSources[0], nil
 }
