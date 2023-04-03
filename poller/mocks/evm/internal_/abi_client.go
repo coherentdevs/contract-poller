@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	constants "github.com/coherent-api/contract-poller/shared/constants"
+	constants "github.com/datadaodevs/go-service-framework/constants"
 
 	etherscan "github.com/nanmu42/etherscan-api"
 

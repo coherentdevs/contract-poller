@@ -3,7 +3,7 @@ package abi_client
 import (
 	"time"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/nanmu42/etherscan-api"
 	"github.com/spf13/viper"
 )

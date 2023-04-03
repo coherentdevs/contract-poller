@@ -5,7 +5,7 @@ import (
 
 	"github.com/coherent-api/contract-poller/poller/evm/client/abi_client"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/datadaodevs/go-service-framework/util"
 	"github.com/nanmu42/etherscan-api"
 )
@@ -15,7 +15,7 @@ type ABIClient interface {
 }
 
 type Database interface {
-	GetContractsToBackfill() ([]models.Contract, error)
+	GetContractsToBackfill(blockchain constants.Blockchain) ([]models.Contract, error)
 	UpdateContractsToBackfill(contracts []models.Contract) error
 	GetContract(contractAddress string, blockchain constants.Blockchain) (*models.Contract, error)
 	GetEventFragmentById(eventId string) (*models.EventFragment, error)

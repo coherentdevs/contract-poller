@@ -27,7 +27,7 @@ func main() {
 	rateLimiter := rate.NewLimiter(rate.Every(abiCfg.AbiClientRateMilliseconds*time.Millisecond), abiCfg.AbiClientRateRequests)
 
 	contractPoller := contractPoller.NewContractPoller(
-		config,
+		config.Blockchain,
 		contractPoller.WithABIClient(abiClient),
 		contractPoller.WithDatabase(db),
 		contractPoller.WithNodeClient(evmClient),

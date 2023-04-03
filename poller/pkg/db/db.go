@@ -2,13 +2,18 @@ package db
 
 import (
 	"context"
+
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
+	serviceFrameworkConfig "github.com/coherent-api/contract-poller/shared/service_framework/config"
+	"github.com/datadaodevs/go-service-framework/constants"
+
+	"strings"
+	"time"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"strings"
-	"time"
 )
 
 var (
@@ -55,11 +60,25 @@ func MustNewDB(cfg *Config, manager *service_framework.Manager) *DB {
 	return db
 }
 
-func (db *DB) GetContractsToBackfill() ([]models.Contract, error) {
+func (db *DB) GetContractsToBackfill(blockchain constants.Blockchain) ([]models.Contract, error) {
 	//TODO: Temporary solution for local development. This should be replaced with a query to the database
 	contractList := make([]models.Contract, 0)
-	for _, contractAddress := range TestContracts {
-		contractList = append(contractList, models.Contract{Address: contractAddress})
+	if db.Config.Env == string(serviceFrameworkConfig.Local) {
+		for _, contractAddress := range TestContracts {
+			contractList = append(contractList, models.Contract{Address: contractAddress})
+		}
+	} else {
+		// find all nil contracts
+		ctx, cancel := context.WithTimeout(db.manager.Context(), 20*time.Second)
+		defer cancel()
+		queryResult := db.Connection.WithContext(ctx).
+			Model(&models.Contract{}).
+			Where("blockchain = ?", blockchain).
+			Find(&contractList)
+
+		if queryResult.Error != nil {
+			return nil, queryResult.Error
+		}
 	}
 	return contractList, nil
 }

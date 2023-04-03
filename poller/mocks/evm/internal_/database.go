@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	constants "github.com/coherent-api/contract-poller/shared/constants"
+	constants "github.com/datadaodevs/go-service-framework/constants"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -84,7 +84,7 @@ func (_m *Database) GetContract(contractAddress string, blockchain constants.Blo
 }
 
 // GetContractsToBackfill provides a mock function with given fields:
-func (_m *Database) GetContractsToBackfill() ([]models.Contract, error) {
+func (_m *Database) GetContractsToBackfill(blockchain constants.Blockchain) ([]models.Contract, error) {
 	ret := _m.Called()
 
 	var r0 []models.Contract

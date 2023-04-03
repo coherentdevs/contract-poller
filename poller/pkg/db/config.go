@@ -2,8 +2,9 @@ package db
 
 import (
 	"fmt"
-	"github.com/coherent-api/contract-poller/shared/constants"
 	"time"
+
+	"github.com/datadaodevs/go-service-framework/constants"
 
 	"github.com/coherent-api/contract-poller/shared/service_framework"
 	"github.com/spf13/viper"
@@ -22,6 +23,7 @@ type Config struct {
 	PeriodDuration                time.Duration
 	FragmentBuilderPeriodDuration time.Duration
 	FragmentBatchSize             int
+	Env                           string
 
 	manager *service_framework.Manager
 
@@ -46,6 +48,7 @@ func NewConfig(manager *service_framework.Manager) *Config {
 		PeriodDuration:                viper.GetDuration("period_duration"),
 		FragmentBuilderPeriodDuration: viper.GetDuration("fragment_builder_period_duration"),
 		FragmentBatchSize:             viper.GetInt("fragment_batch_size"),
+		Env:                           viper.GetString("env"),
 
 		manager: manager,
 
@@ -67,6 +70,7 @@ func setDefaults() {
 	viper.SetDefault("fragment_builder_period_duration", "1000000s")
 	viper.SetDefault("fragment_batch_size", 10000)
 	viper.SetDefault("blockchain", "ethereum")
+	viper.SetDefault("env", "local")
 }
 
 func (c *Config) DSN() string {

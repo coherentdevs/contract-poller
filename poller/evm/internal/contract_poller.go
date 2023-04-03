@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/coherent-api/contract-poller/poller/pkg/config"
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
+	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/datadaodevs/go-service-framework/util"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
@@ -16,7 +16,7 @@ var (
 )
 
 type contractPoller struct {
-	config      *config.Config
+	blockchain  constants.Blockchain
 	abiClient   ABIClient
 	evmClient   EVMClient
 	db          Database
@@ -28,9 +28,9 @@ type ContractPoller interface {
 	Start(ctx context.Context) error
 }
 
-func NewContractPoller(cfg *config.Config, opts ...opt) *contractPoller {
+func NewContractPoller(blockchain constants.Blockchain, opts ...opt) *contractPoller {
 	p := &contractPoller{
-		config: cfg,
+		blockchain: blockchain,
 	}
 
 	for _, fn := range opts {
@@ -44,7 +44,7 @@ func (p *contractPoller) Start(ctx context.Context) error {
 }
 
 func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
-	contracts, err := p.db.GetContractsToBackfill()
+	contracts, err := p.db.GetContractsToBackfill(p.blockchain)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 			p.logger.Errorf("error from EVM Client: %v", err)
 			continue
 		}
-		abiResp, err := p.abiClient.ContractSource(ctx, contract.Address, p.config.Blockchain)
+		abiResp, err := p.abiClient.ContractSource(ctx, contract.Address, p.blockchain)
 		if err != nil {
 			p.logger.Errorf("error from ABI Client: %v", err)
 			continue
@@ -75,7 +75,7 @@ func (p *contractPoller) beginContractBackfiller(ctx context.Context) error {
 		}
 		updatedContract := &models.Contract{
 			Address:      strings.ToLower(contract.Address),
-			Blockchain:   p.config.Blockchain,
+			Blockchain:   p.blockchain,
 			Name:         contractMetadata.Name,
 			Symbol:       contractMetadata.Symbol,
 			OfficialName: officialName,
