@@ -3,16 +3,17 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"strings"
 	"time"
+
+	"github.com/coherent-api/contract-poller/poller/pkg/models"
 
 	"gorm.io/gorm/clause"
 
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 )
 
 var (

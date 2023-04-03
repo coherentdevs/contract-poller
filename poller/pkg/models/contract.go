@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"gorm.io/gorm"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 )
 
 type Contract struct {

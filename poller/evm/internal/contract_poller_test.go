@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 )
 
 func TestContractPoller_Start(t *testing.T) {
@@ -119,11 +119,11 @@ func TestContractPoller_Start(t *testing.T) {
 			}
 
 			p := &contractPoller{
-				config:    config,
-				evmClient: evmClient,
-				abiClient: abiClient,
-				db:        db,
-				logger:    manager.Logger(),
+				blockchain: config.Blockchain,
+				evmClient:  evmClient,
+				abiClient:  abiClient,
+				db:         db,
+				logger:     manager.Logger(),
 			}
 			test.mocks(ctx, db, abiClient, evmClient)
 

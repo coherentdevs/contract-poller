@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/spf13/viper"
 )
 

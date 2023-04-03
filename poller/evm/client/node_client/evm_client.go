@@ -8,8 +8,8 @@ import (
 	"github.com/coherent-api/contract-poller/poller/pkg/models"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
 	"github.com/coherent-api/contract-poller/shared/service_framework"
+	"github.com/datadaodevs/go-service-framework/constants"
 )
 
 type evmClient struct {

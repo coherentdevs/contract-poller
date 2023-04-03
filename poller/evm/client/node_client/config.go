@@ -3,7 +3,7 @@ package node_client
 import (
 	"github.com/spf13/viper"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 )
 
 type Config struct {

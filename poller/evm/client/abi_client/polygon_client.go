@@ -13,7 +13,7 @@ import (
 	"github.com/datadaodevs/go-service-framework/retry"
 	"github.com/pkg/errors"
 
-	"github.com/coherent-api/contract-poller/shared/constants"
+	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/nanmu42/etherscan-api"
 )
 
