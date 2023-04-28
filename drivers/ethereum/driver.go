@@ -24,13 +24,14 @@ const (
 type Driver struct {
 	client          *client
 	logger          util.Logger
+	metrics         util.Metrics
 	config          *Config
 	database        *database.Database
 	fragmentBuilder *fragment_builder.Constructor
 }
 
 // NewDriver constructs a new Driver
-func NewDriver(cfg *Config, nodeClient nodeClient.Client, logger util.Logger, cursor uint64) (*Driver, error) {
+func NewDriver(cfg *Config, nodeClient nodeClient.Client, logger util.Logger, metrics util.Metrics, cursor uint64) (*Driver, error) {
 	abiClient, err := abi_client.NewEthereumABIClient(abi_client.MustParseConfig(logger))
 	if err != nil {
 		return nil, err
@@ -38,6 +39,7 @@ func NewDriver(cfg *Config, nodeClient nodeClient.Client, logger util.Logger, cu
 	driver := &Driver{
 		client:          &client{node: nodeClient, abiSource: abiClient, logger: logger, cursor: cursor, blockchain: cfg.Blockchain},
 		logger:          logger,
+		metrics:         metrics,
 		config:          cfg,
 		fragmentBuilder: &fragment_builder.Constructor{},
 	}
