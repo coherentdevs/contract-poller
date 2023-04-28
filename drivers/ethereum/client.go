@@ -129,10 +129,7 @@ func (c *client) GetContractMetadata(ctx context.Context, contractAddress string
 			contract.Name = name
 			symbol, _ := token.Symbol(nil)
 			contract.Symbol = symbol
-			decimals, err := token.Decimals(nil)
-			if err != nil {
-				return &contract, err
-			}
+			decimals, _ := token.Decimals(nil)
 			contract.Decimals = int32(decimals)
 			return &contract, nil
 		}
