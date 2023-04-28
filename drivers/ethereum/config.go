@@ -8,7 +8,7 @@ import (
 
 // Config stores configurable properties of the driver
 type Config struct {
-	MaxRetries int                  `env:"HTTP_MAX_RETRIES" envDefault:"10"`
+	MaxRetries int                  `env:"HTTP_MAX_RETRIES" envDefault:"5"`
 	Blockchain constants.Blockchain `env:"BLOCKCHAIN,required"`
 }
 

@@ -79,7 +79,7 @@ func (d *Driver) FetchMetadata(ctx context.Context, deployments []string, blockN
 			contracts[address] = contract
 			return nil
 		}, nil); err != nil {
-			d.logger.Errorf("Max retries exceeded trying to get chaintip number: %v", err)
+			d.logger.Errorf("Max retries exceeded trying to get contract metadata for %s: %v", address, err)
 			return nil, err
 		}
 
@@ -106,7 +106,7 @@ func (d *Driver) construct(res interface{}) []string {
 	var deployments []string
 	for index, trace := range traces {
 		receipt := receipts[index]
-		if trace.GetType() == "CREATE" || trace.GetType() == "CREATE2" {
+		if trace.GetType() == "CREATE" {
 			deployments = append(deployments, receipt.GetContractAddress())
 		}
 	}
