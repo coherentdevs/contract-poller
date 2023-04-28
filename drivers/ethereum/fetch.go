@@ -97,7 +97,7 @@ type callTraceNode struct {
 	ContractAddress string
 }
 
-// parquetAndUploadTraces writes parquet to storage for traces
+// flattenTraceAndReceipts flattens recursive trace calls & gets the contract address for each call (if it exists)
 func (d *Driver) flattenTraceAndReceipts(receipts []*protos.TransactionReceipt, traces []*protos.CallTrace) ([]*callTraceNode, error) {
 
 	if len(receipts) != len(traces) {
