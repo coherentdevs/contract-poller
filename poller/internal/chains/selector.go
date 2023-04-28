@@ -11,11 +11,12 @@ func MustInitializeDriver(
 	chain constants.Blockchain,
 	node node.Client,
 	logger util.Logger,
+	metrics util.Metrics,
 	cursor uint64,
 ) poller.Driver {
 	switch chain {
 	case constants.Ethereum:
-		driver, err := mustInitEthereumDriver(node, logger, cursor)
+		driver, err := mustInitEthereumDriver(node, logger, cursor, metrics)
 		if err != nil {
 			logger.Fatalf("could not initialize ethereum driver: %v", err)
 		}

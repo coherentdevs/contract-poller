@@ -3,11 +3,13 @@ package ethereum
 import (
 	"context"
 	"errors"
+	"fmt"
 	protos "github.com/coherentopensource/chain-interactor/protos/go/protos/chains/ethereum"
 	"github.com/coherentopensource/contract-poller/models"
 	"github.com/coherentopensource/go-service-framework/pool"
 	"github.com/coherentopensource/go-service-framework/retry"
 	"strings"
+	"sync"
 )
 
 func (d *Driver) queueGetContractABI(res interface{}) pool.Runner {
@@ -37,6 +39,7 @@ func (d *Driver) FetchABI(ctx context.Context, deployments []string) (map[string
 	contractABIs := make(map[string]*models.Contract, 0)
 	for _, address := range deployments {
 		if err := retry.Exec(d.config.MaxRetries, func() error {
+			d.metrics.Incr("etherscan_calls", []string{}, 1.0)
 			resp, err := d.client.abiSource.ContractSource(ctx, address)
 			if err != nil {
 				d.logger.Warnf("error thrown while trying to retrieve abi for contract: %v", err)
@@ -88,6 +91,65 @@ func (d *Driver) FetchMetadata(ctx context.Context, deployments []string, blockN
 	return contracts, nil
 }
 
+type callTraceNode struct {
+	CallTrace       *protos.CallTrace
+	Index           int64
+	ContractAddress string
+}
+
+// parquetAndUploadTraces writes parquet to storage for traces
+func (d *Driver) flattenTraceAndReceipts(receipts []*protos.TransactionReceipt, traces []*protos.CallTrace) ([]*callTraceNode, error) {
+
+	if len(receipts) != len(traces) {
+		return nil, errors.New(fmt.Sprintf("transactions and traces count don't match for block: %d %d != %d", d.client.cursor, len(receipts), len(traces)))
+	}
+
+	var bfsWG sync.WaitGroup
+	var outputs []*callTraceNode
+	mutex := sync.Mutex{}
+	for i, callTrace := range traces {
+		bfsWG.Add(1)
+		go func(index int, callTrace *protos.CallTrace) {
+			defer bfsWG.Done()
+
+			queue := make([]*callTraceNode, 0)
+			queue = append(
+				queue,
+				&callTraceNode{
+					CallTrace: callTrace,
+					Index:     int64(index),
+				},
+			)
+			for len(queue) > 0 {
+				currentNode := queue[0]
+				queue = queue[1:]
+				mutex.Lock()
+				outputs = append(
+					outputs, &callTraceNode{
+						callTrace,
+						currentNode.Index,
+						receipts[index].GetContractAddress(),
+					},
+				)
+				mutex.Unlock()
+				for callIndex, call := range currentNode.CallTrace.Calls {
+					queue = append(
+						queue,
+						&callTraceNode{
+							CallTrace: call,
+							Index:     int64(callIndex),
+						},
+					)
+				}
+
+			}
+		}(i, callTrace)
+	}
+	bfsWG.Wait()
+
+	return outputs, nil
+}
+
 func (d *Driver) construct(res interface{}) []string {
 	set, ok := res.(pool.ResultSet)
 	if !ok {
@@ -104,12 +166,16 @@ func (d *Driver) construct(res interface{}) []string {
 	}
 
 	var deployments []string
-	for index, trace := range traces {
-		receipt := receipts[index]
-		if trace.GetType() == "CREATE" {
-			deployments = append(deployments, receipt.GetContractAddress())
+	flattenedTraces, err := d.flattenTraceAndReceipts(receipts, traces)
+	if err != nil {
+		d.logger.Errorf("!!!!!!error flattening trace: %v", err)
+	}
+	for _, trace := range flattenedTraces {
+		if trace.CallTrace.GetType() == "CREATE" && len(trace.ContractAddress) > 0 {
+			deployments = append(deployments, trace.ContractAddress)
 		}
 	}
+	d.metrics.Incr("contract_deployments", []string{}, float64(len(deployments)))
 	return deployments
 }
 

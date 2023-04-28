@@ -62,7 +62,7 @@ func main() {
 	if err != nil {
 		mgr.Logger().Warnf("could not get current block number from cache: %v", err)
 	}
-	driver := chains.MustInitializeDriver(cfg.Poller.Blockchain, nodeClient, mgr.Logger(), cursor)
+	driver := chains.MustInitializeDriver(cfg.Poller.Blockchain, nodeClient, mgr.Logger(), mgr.Metrics(), cursor)
 
 	p := poller.New(
 		&cfg.Poller,
