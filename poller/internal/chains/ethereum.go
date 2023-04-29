@@ -6,11 +6,12 @@ import (
 	"github.com/coherentopensource/go-service-framework/util"
 )
 
-func mustInitEthereumDriver(node node.Client, logger util.Logger, cursor uint64) (*ethereum.Driver, error) {
+func mustInitEthereumDriver(node node.Client, logger util.Logger, cursor uint64, metrics util.Metrics) (*ethereum.Driver, error) {
 	driver, err := ethereum.NewDriver(
 		ethereum.MustParseConfig(logger),
 		node,
 		logger,
+		metrics,
 		cursor,
 	)
 	if err != nil {

@@ -25,7 +25,7 @@ lint:
 
 .PHONY: poller
 poller:
-	go run poller/evm/cmd/main.go
+	go run poller/cmd/main.go
 
 .PHONY: infra-up
 infra-up:

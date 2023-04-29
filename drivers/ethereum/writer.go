@@ -16,7 +16,6 @@ func (d *Driver) Writers() []pool.FeedTransformer {
 	}
 }
 
-// TODO: REMOVE LOGS
 // uploadContracts upserts contracts to PostgresDB
 func (d *Driver) uploadContracts(res interface{}) pool.Runner {
 	return func(ctx context.Context) (interface{}, error) {
@@ -70,6 +69,8 @@ func (d *Driver) Upsert(object interface{}, model interface{}) error {
 		d.logger.Errorf("could not insert to PostgresDB: %v", res.Error)
 		return res.Error
 	}
+	d.logger.Infof("successfully inserted %d objects to PostgresDB", res.RowsAffected)
+
 	return nil
 }
 
