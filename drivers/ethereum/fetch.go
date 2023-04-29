@@ -39,7 +39,10 @@ func (d *Driver) FetchABI(ctx context.Context, deployments []string) (map[string
 	contractABIs := make(map[string]*models.Contract, 0)
 	for _, address := range deployments {
 		if err := retry.Exec(d.config.MaxRetries, func() error {
-			d.metrics.Incr("etherscan_calls", []string{}, 1.0)
+			statsdErr := d.metrics.Incr("etherscan_calls", []string{}, 1.0)
+			if statsdErr != nil {
+				d.logger.Warnf("error incrementing etherscan calls metric: %v", statsdErr)
+			}
 			resp, err := d.client.abiSource.ContractSource(ctx, address)
 			if err != nil {
 				d.logger.Warnf("error thrown while trying to retrieve abi for contract: %v", err)
@@ -175,7 +178,10 @@ func (d *Driver) construct(res interface{}) []string {
 			deployments = append(deployments, trace.ContractAddress)
 		}
 	}
-	d.metrics.Incr("contract_deployments", []string{}, float64(len(deployments)))
+	err = d.metrics.Incr("contract_deployments", []string{}, float64(len(deployments)))
+	if err != nil {
+		d.logger.Warnf("error incrementing contract deployments metric: %v", err)
+	}
 	return deployments
 }
 
