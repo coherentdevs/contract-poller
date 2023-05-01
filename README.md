@@ -47,7 +47,7 @@ To run {Service Name}, simply run (if run locally, it uses .env file):
 
 ## Contributing
 
-If you would like to contribute to {Service Name}, please follow these steps:
+If you would like to contribute to Contract Poller, please follow these steps:
 
 1. Fork the repository
 2. Create a new branch (`git checkout -b username/{your-feature-name}`)
@@ -58,4 +58,4 @@ If you would like to contribute to {Service Name}, please follow these steps:
 
 ## License
 
-Contract Poller is released under the {license name} license. See [LICENSE](LICENSE) for more information.
+Contract Poller is released under the MIT license. See [LICENSE](LICENSE) for more information.
