@@ -69,7 +69,6 @@ func (d *Driver) Upsert(object interface{}, model interface{}) error {
 		d.logger.Errorf("could not insert to PostgresDB: %v", res.Error)
 		return res.Error
 	}
-	d.logger.Infof("successfully inserted %d objects to PostgresDB", res.RowsAffected)
 
 	return nil
 }

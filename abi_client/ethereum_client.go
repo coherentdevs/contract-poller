@@ -3,15 +3,8 @@ package abi_client
 import (
 	"context"
 	"fmt"
-
-	"github.com/pkg/errors"
-
 	"github.com/coherentopensource/go-service-framework/retry"
 	"github.com/nanmu42/etherscan-api"
-)
-
-var (
-	ErrEtherscanServerNotOK = errors.New("etherscan server: NOTOK")
 )
 
 type ethereumClient struct {
@@ -42,15 +35,8 @@ func (e *ethereumClient) ContractSource(ctx context.Context, contractAddress str
 	var err error
 	if retryErr := retry.Exec(e.HTTPRetries, func() error {
 		contractSources, err = e.Client.ContractSource(contractAddress)
-		if errors.Is(err, ErrEtherscanServerNotOK) {
-			return err
-		}
-		return nil
+		return err
 	}, nil); retryErr != nil {
-		return nil, retryErr
-	}
-
-	if err != nil {
 		return nil, fmt.Errorf("failed to get contract resource for contract: %s: %v", contractAddress, err)
 	}
 
