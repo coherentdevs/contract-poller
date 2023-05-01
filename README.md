@@ -1,62 +1,61 @@
 # contract-poller
 
-## Overview
-Service that sources and stores contract data
+Contract Poller is a service to fetch all smart contracts on an EVM chain.
+It is responsible for determining contract deployment transactions by polling transactions,
+receipts and traces using a RPC node, and fetches its relevant ABI from etherscan
+and contract metadata (standard, symbol, name, decimals, etc) via a RPC node.
 
-## Repository Structure
-Our main service is the poller which serves as how we find and load contracts and their corresponding ABIs into the database. The poller is a go service that runs on a cron job and is responsible for finding new contracts and loading them into the database.
+## Installation
 
-### Env variables
-There are a couple of environment variables that need to be set in order to run the poller locally. Create a .env file in the root of the project and add the following variables
+To install contract-poller, make sure you have Go installed on your machine. Then, run:
 
-```  
-ETHERSCAN_API_KEY={INSERT YOUR ETHERSCAN API KEY HERE}
-POLYGONSCAN_API_KEY={INSERT YOUR POLYGONSCAN API KEY HERE}
-ETHEREUM_NODE_RPC_ENDPOINT={INSERT YOUR ETHEREUM NODE RPC ENDPOINT HERE}
-OPTIMISM_NODE_RPC_ENDPOINT={INSERT YOUR OPTIMISM NODE RPC ENDPOINT HERE}
-POLYGON_NODE_RPC_ENDPOINT={INSERT YOUR POLYGON NODE RPC ENDPOINT HERE}
+`go get github.com/coherentopensource/contract-poller`
+
+
+## Usage
+Before running contract poller, make sure to have the following values as your environment variables.
+```dotenv
+ENV=local
+BLOCKCHAIN=ethereum
+
+REDIS_HOST=localhost:6379
+NODE_HOST={rpc_node_host}
+
+DB_HOST={db_host}
+
+DB_USER={db_user}
+DB_PASSWORD={db_password}
+DB_NAME={db_name}
+DB_PORT=5432
+SSL_MODE=disable
+
+ETHERSCAN_API_KEY={etherscan_api_key}
+
+POLLER_AUTO_START=true
+# BATCH_SIZE is how many blocks you poll at once
+BATCH_SIZE=
+# POLLER_POOL_BANDWIDTH should be 3 * BATCH_SIZE
+FETCHER_POOL_BANDWIDTH=
+# ACCUMULATOR_POOL_BANDWIDTH should be equal to BATCH_SIZE
+ACCUMULATOR_POOL_BANDWIDTH=
+# WRITER_POOL_BANDWIDTH should be 3 * BATCH_SIZE
+WRITER_POOL_BANDWIDTH=
 ```
+To run {Service Name}, simply run (if run locally, it uses .env file):
 
-## Setting up the DB
+`make run`
 
-### Setting up the DB locally
+## Contributing
 
-There are a few commands you need to run to set up the DB.
+If you would like to contribute to Contract Poller, please follow these steps:
 
-First run the infra locally
+1. Fork the repository
+2. Create a new branch (`git checkout -b username/{your-feature-name}`)
+3. Make your changes
+4. Commit your changes (`git commit -m "Add some feature"`)
+5. Push to the branch (`git push origin username/{your-feature-name}`)
+6. Create a new Pull Request
 
-```
-make infra-up
-```
+## License
 
-Then make sure you have psql installed
-
-```
-brew install postgresql
-```
-
-Next connect to the postgres server running locally and create the database
-
-```
-psql -h localhost -p 5432 -U postgres 
-enter password: postgres 
-CREATE DATABASE db;
-\c db
-```
-
-Now the database will be created on your local machine.
-
-### Initializing the DB
-Run the following command to initialize the database
-
-```
-make db-migrate
-```
-This will create the tables in the database, and run the migrations.
-
-### Running the fragment backfiller
-The fragment backfiller is a service that will backfill the database with abi fragments from newly uploaded contracts . To run the fragment-backfiller, run the following command
-
-```
-make fragment-backfiller
-```
+Contract Poller is released under the MIT license. See [LICENSE](LICENSE) for more information.
