@@ -3,13 +3,13 @@ package abi_client
 import (
 	"context"
 	"fmt"
-	"github.com/coherentopensource/go-service-framework/retry"
+	"github.com/coherentopensource/go-service-framework/rate_limiter"
 	"github.com/nanmu42/etherscan-api"
 )
 
 type ethereumClient struct {
-	HTTPRetries int
 	Client      *etherscan.Client
+	RateLimiter *rate_limiter.RateLimitedClient
 }
 
 func NewEthereumABIClient(cfg *Config) (*ethereumClient, error) {
@@ -21,11 +21,12 @@ func NewEthereumABIClient(cfg *Config) (*ethereumClient, error) {
 	if cfg.EtherscanAPIKey == "" {
 		return nil, fmt.Errorf("etherscan api key is not defined")
 	}
+	rateLimiter := rate_limiter.NewClient(cfg.ErrorSleep, cfg.RateIntervalMs, cfg.MaxRateRequests)
 
 	client := etherscan.New(cfg.EtherscanNetwork, cfg.EtherscanAPIKey)
 	return &ethereumClient{
 		Client:      client,
-		HTTPRetries: cfg.HTTPRetries,
+		RateLimiter: rateLimiter,
 	}, nil
 }
 
@@ -33,12 +34,15 @@ func NewEthereumABIClient(cfg *Config) (*ethereumClient, error) {
 func (e *ethereumClient) ContractSource(ctx context.Context, contractAddress string) (*etherscan.ContractSource, error) {
 	var contractSources []etherscan.ContractSource
 	var err error
-	if retryErr := retry.Exec(e.HTTPRetries, func() error {
+	rateErr := e.RateLimiter.Exec(ctx, func() error {
 		contractSources, err = e.Client.ContractSource(contractAddress)
-		return err
-	}, nil); retryErr != nil {
-		return nil, fmt.Errorf("failed to get contract resource for contract: %s: %v", contractAddress, err)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if rateErr != nil {
+		return nil, rateErr
 	}
-
 	return &contractSources[0], nil
 }

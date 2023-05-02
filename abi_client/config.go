@@ -5,6 +5,7 @@ import (
 	"github.com/coherentopensource/go-service-framework/util"
 	"github.com/datadaodevs/go-service-framework/constants"
 	"github.com/nanmu42/etherscan-api"
+	"time"
 )
 
 type Config struct {
@@ -12,6 +13,9 @@ type Config struct {
 	EtherscanNetwork etherscan.Network    `env:"ETHERSCAN_NETWORK" envDefault:"api"`
 	Blockchain       constants.Blockchain `env:"BLOCKCHAIN,required"`
 	HTTPRetries      int                  `env:"HTTP_RETRIES" envDefault:"3"`
+	ErrorSleep       time.Duration        `env:"ERROR_SLEEP" envDefault:"1s"`
+	RateIntervalMs   time.Duration        `env:"RATE_INTERVAL_MS" envDefault:"1000ms"`
+	MaxRateRequests  int                  `env:"MAX_RATE_REQUESTS" envDefault:"5"`
 }
 
 func MustParseConfig(logger util.Logger) *Config {
