@@ -4,22 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/coherentopensource/contract-poller/models"
 	"github.com/coherentopensource/go-service-framework/pool"
+	"strings"
 )
 
 // Accumulate combines ABI and metadata to form complete contracts and fragments using result from the "fetch" step
 func (d *Driver) Accumulate(res interface{}) pool.Runner {
 	return func(ctx context.Context) (interface{}, error) {
-		abis, err := extractContractsWithABI(res.(pool.ResultSet))
-		if err != nil {
-			d.logger.Errorf("error extracting ABI data: %s", err)
+		resultSet, ok := res.(pool.ResultSet)
+		if !ok {
+			return nil, errors.New("no result set found")
 		}
-		metadata, err := extractContractsWithMetadata(res.(pool.ResultSet))
+		contractMap, err := extractContractsWithMetadata(resultSet)
 		if err != nil {
-			d.logger.Errorf("error extracting metadata: %s", err)
+			return nil, errors.New(fmt.Sprintf("error extracting contracts: %s", err))
 		}
-		contracts := combineContracts(abis, metadata)
+		contracts := extractContracts(contractMap)
 		methods, events, err := d.buildFragments(ctx, contracts)
 		return models.ContractData{
 			Contracts: contracts,
@@ -83,6 +85,27 @@ func combineContracts(abis map[string]*models.Contract, metadata map[string]*mod
 					metadataContract.Name = contract.Name
 				}
 				contractArr[index] = *metadata[address]
+			}
+		}
+		index++
+	}
+	return contractArr
+}
+
+func extractContracts(contracts map[string]*models.Contract) []models.Contract {
+	contractArr := make([]models.Contract, len(contracts))
+	index := 0
+	for address, contract := range contracts {
+		if contract != nil {
+			contractArr[index] = models.Contract{
+				Address:      strings.ToLower(address),
+				Blockchain:   contract.Blockchain,
+				Name:         contract.Name,
+				Symbol:       contract.Symbol,
+				OfficialName: contract.OfficialName,
+				Standard:     contract.Standard,
+				ABI:          sanitizeString(contract.ABI),
+				Decimals:     contract.Decimals,
 			}
 		}
 		index++
