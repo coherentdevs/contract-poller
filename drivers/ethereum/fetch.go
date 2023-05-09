@@ -27,7 +27,7 @@ func (d *Driver) queueGetContractMetadata(res interface{}) pool.Runner {
 }
 func (d *Driver) Fetchers() map[string]pool.FeedTransformer {
 	return map[string]pool.FeedTransformer{
-		stageFetchABI:      d.queueGetContractABI,
+		//stageFetchABI:      d.queueGetContractABI,
 		stageFetchMetadata: d.queueGetContractMetadata,
 	}
 }
