@@ -80,22 +80,18 @@ func (c *client) GetTracesForBlock(ctx context.Context, blockNumber uint64) ([]*
 	return rawTraces, nil
 }
 
-func (c *client) GetBlockReceipt(ctx context.Context, blockNumber uint64) ([]*protos.TransactionReceipt, error) {
-	res, err := c.node.GetBlockReceipt(ctx, blockNumber)
+func (c *client) GetTransactionReceipt(ctx context.Context, txHash string) (*protos.TransactionReceipt, error) {
+	res, err := c.node.GetTransactionReceipt(ctx, txHash)
 	if err != nil {
 		return nil, err
 	}
 
-	var rawReceipts []*protos.TransactionReceipt
-	for _, receipt := range res.Result {
-		rawReceipt := &protos.TransactionReceipt{}
-		if err := protojson.Unmarshal(receipt, rawReceipt); err != nil {
-			return nil, err
-		}
-		rawReceipts = append(rawReceipts, rawReceipt)
+	rawReceipt := &protos.TransactionReceipt{}
+	if err := protojson.Unmarshal(res.Result, rawReceipt); err != nil {
+		return nil, err
 	}
 
-	return rawReceipts, nil
+	return rawReceipt, nil
 }
 
 func (c *client) GetContractMetadata(ctx context.Context, contractAddress string, blockNumber uint64) (*models.Contract, error) {

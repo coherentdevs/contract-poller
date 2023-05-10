@@ -2,16 +2,18 @@ package optimism
 
 import (
 	"context"
+	"fmt"
 	protos "github.com/coherentopensource/chain-interactor/protos/go/protos/chains/optimism"
 	"github.com/coherentopensource/go-service-framework/pool"
 	"github.com/coherentopensource/go-service-framework/retry"
+	"sync"
 )
 
 // FetchSequence defines the parallelizable steps in the fetch sequence
 func (d *Driver) FetchSequence(blockHeight uint64) map[string]pool.Runner {
 	d.client.cursor = blockHeight
 	return map[string]pool.Runner{
-		stageFetchReceipt: d.queueGetBlockReceiptsByNumber(blockHeight),
+		stageFetchReceipt: d.queueGetBlockAndTxReceiptByNumber(blockHeight),
 		stageFetchTraces:  d.queueGetBlockTraceByNumber(blockHeight),
 	}
 }
@@ -54,24 +56,23 @@ func (d *Driver) getBlockTraceByNumber(ctx context.Context, blockHeight uint64) 
 	return traces, nil
 }
 
-// getBlockReceiptsByNumber fetches a set of block receipts for a given block
-func (d *Driver) getBlockReceiptsByNumber(ctx context.Context, blockHeight uint64) ([]*protos.TransactionReceipt, error) {
-	var receipts []*protos.TransactionReceipt
+func (d *Driver) getTransactionReceipt(ctx context.Context, txHash string) (*protos.TransactionReceipt, error) {
+	var txReceipt *protos.TransactionReceipt
 	var err error
+
 	if err := retry.Exec(d.config.MaxRetries, func() error {
-		receipts, err = d.client.GetBlockReceipt(ctx, blockHeight)
+		txReceipt, err = d.client.GetTransactionReceipt(ctx, txHash)
 		if err != nil {
-			d.logger.Warnf("error thrown while trying to retrieve block receipts: %d, %v", blockHeight, err)
+			d.logger.Warnf("error thrown while trying to retrieve transaction receipt: %d, %v", txHash, err)
 			return err
 		}
-
 		return nil
 	}, nil); err != nil {
-		d.logger.Errorf("Max retries exceeded trying to get receipts: %v", err)
+		d.logger.Errorf("max retries exceeded trying to get block by number: %v", err)
 		return nil, err
 	}
 
-	return receipts, nil
+	return txReceipt, nil
 }
 
 // queueGetBlockTraceByNumber wraps GetBlockTraceByNumber in a queueable Runner func
@@ -81,9 +82,55 @@ func (d *Driver) queueGetBlockTraceByNumber(blockHeight uint64) pool.Runner {
 	}
 }
 
-// queueGetBlockReceiptsByNumber wraps getBlockReceiptsByNumber in a queueable Runner func
-func (d *Driver) queueGetBlockReceiptsByNumber(blockHeight uint64) pool.Runner {
+// getBlockByNumber fetches a full block by number
+func (d *Driver) getBlockByNumber(ctx context.Context, blockHeight uint64) (*protos.Block, error) {
+	var block *protos.Block
+	var err error
+	if err := retry.Exec(d.config.MaxRetries, func() error {
+		block, err = d.client.GetBlockByNumber(ctx, blockHeight)
+		if err != nil {
+			d.logger.Warnf("error thrown while trying to retrieve block: %d, %v", blockHeight, err)
+			return err
+		}
+
+		return nil
+	}, nil); err != nil {
+		d.logger.Errorf("max retries exceeded trying to get block by number: %v", err)
+		return nil, err
+	}
+
+	return block, nil
+}
+
+// queueGetBlockAndTxReceiptByNumber wraps ReadBlockByNumber in a queueable Runner func
+func (d *Driver) queueGetBlockAndTxReceiptByNumber(blockHeight uint64) pool.Runner {
 	return func(ctx context.Context) (interface{}, error) {
-		return d.getBlockReceiptsByNumber(ctx, blockHeight)
+		block, err := d.getBlockByNumber(ctx, blockHeight)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(block.Transactions) == 0 {
+			return nil, fmt.Errorf("no transactions present in block %d", blockHeight)
+		}
+
+		receipts := make([]*protos.TransactionReceipt, len(block.Transactions))
+
+		var wg sync.WaitGroup
+		wg.Add(len(block.Transactions))
+		for index, transaction := range block.Transactions {
+			go func(ctx context.Context, i int, tx *protos.Transaction) {
+				defer wg.Done()
+				txReceipt, err := d.getTransactionReceipt(ctx, tx.Hash)
+				if err != nil {
+					d.logger.Errorf("error fetching transaction receipt with hash: %s, %v", tx.Hash, err)
+				}
+				receipts[i] = txReceipt
+			}(ctx, index, transaction)
+
+		}
+		wg.Wait()
+
+		return receipts, nil
 	}
 }
