@@ -61,5 +61,5 @@ func NewDriver(cfg *Config, nodeClient nodeClient.Client, logger util.Logger, me
 
 // Blockchain returns the name of the blockchain
 func (d *Driver) Blockchain() string {
-	return string(constants.Ethereum)
+	return string(constants.Optimism)
 }
