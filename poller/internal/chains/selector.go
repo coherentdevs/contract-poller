@@ -14,15 +14,22 @@ func MustInitializeDriver(
 	metrics util.Metrics,
 	cursor uint64,
 ) poller.Driver {
+	var driver poller.Driver
+	var err error
 	switch chain {
 	case constants.Ethereum:
-		driver, err := mustInitEthereumDriver(node, logger, cursor, metrics)
+		driver, err = mustInitEthereumDriver(node, logger, cursor, metrics)
 		if err != nil {
 			logger.Fatalf("could not initialize ethereum driver: %v", err)
 		}
-		return driver
+	case constants.Optimism:
+		driver, err = mustInitOptimismDriver(node, logger, cursor, metrics)
+		if err != nil {
+			logger.Fatalf("could not initialize ethereum driver: %v", err)
+		}
+	default:
+		logger.Fatal("Unsupported or missing blockchain ID")
+		return nil
 	}
-
-	logger.Fatal("Unsupported or missing blockchain ID")
-	return nil
+	return driver
 }
