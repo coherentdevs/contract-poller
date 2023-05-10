@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/coherentopensource/chain-interactor v0.0.10-0.20230427181859-307bfba33023
-	github.com/coherentopensource/go-service-framework v0.0.14-0.20230427204842-890ddab9312f
+	github.com/coherentopensource/go-service-framework v0.0.14-0.20230502140101-da259495c678
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
@@ -25,7 +25,7 @@ require (
 	github.com/segmentio/ksuid v1.0.4 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/time v0.1.0 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/grpc v1.54.0 // indirect
 	gorm.io/driver/postgres v1.5.0 // indirect
 )
