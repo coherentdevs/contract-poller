@@ -102,6 +102,8 @@ github.com/cockroachdb/pebble v0.0.0-20230209160836-829675f94811 h1:ytcWPaNPhNoG
 github.com/cockroachdb/redact v1.1.3 h1:AKZds10rFSIj7qADf0g46UixK8NNLwWTNdCIGS5wfSQ=
 github.com/coherentopensource/chain-interactor v0.0.10-0.20230427181859-307bfba33023 h1:oekntGMO+Ab9b8y24Y6S3pZBsyAd9HJbNorHXF33wEU=
 github.com/coherentopensource/chain-interactor v0.0.10-0.20230427181859-307bfba33023/go.mod h1:E15JDCpQroIVUGw4dGRnmlysDekujM5JE8VMGPapJAI=
+github.com/coherentopensource/chain-interactor v0.0.10-0.20230504195445-5910880ccb0c h1:3TUSClw2/OSxEkGq4knCkESu2S5QbmHcxXcAIRJd2Nw=
+github.com/coherentopensource/chain-interactor v0.0.10-0.20230504195445-5910880ccb0c/go.mod h1:E15JDCpQroIVUGw4dGRnmlysDekujM5JE8VMGPapJAI=
 github.com/coherentopensource/etherscan-api v0.0.0-20230508210243-64d9fb23b17d h1:Rl8dLbcIc0ZD/7pDl7MDO10+SzulQVs8J5IoZibtu9A=
 github.com/coherentopensource/etherscan-api v0.0.0-20230508210243-64d9fb23b17d/go.mod h1:P8oAUxbYfsdfGXQnHCgjTDs4YbmasUVCtYAYc4rrZ5w=
 github.com/coherentopensource/go-service-framework v0.0.14-0.20230427204842-890ddab9312f h1:Vnu6lH0QUlRl77IO0CKMy8R+46ucjn/jVbubs6JVWbM=

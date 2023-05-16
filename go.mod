@@ -3,7 +3,7 @@ module github.com/coherentopensource/contract-poller
 go 1.19
 
 require (
-	github.com/coherentopensource/chain-interactor v0.0.10-0.20230427181859-307bfba33023
+	github.com/coherentopensource/chain-interactor v0.0.10-0.20230504195445-5910880ccb0c
 	github.com/coherentopensource/go-service-framework v0.0.14-0.20230502140101-da259495c678
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/gorilla/mux v1.8.0

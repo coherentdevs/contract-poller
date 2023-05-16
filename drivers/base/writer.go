@@ -11,8 +11,6 @@ func (d *Driver) Writers() []pool.FeedTransformer {
 	// TODO: add parquet and upload for contracts, method fragments, and event fragments
 	return []pool.FeedTransformer{
 		d.uploadContracts,
-		d.uploadMethodFragments,
-		d.uploadEventFragments,
 	}
 }
 
