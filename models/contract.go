@@ -79,6 +79,6 @@ func (c *Contract) sanitizeString(str string) string {
 func (c *Contract) BeforeCreate(tx *gorm.DB) (err error) {
 	tx.Statement.AddClause(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "address"}, {Name: "blockchain"}},
-		DoUpdates: clause.AssignmentColumns([]string{"abi", "decimals", "symbol", "name", "official_name", "standard"})})
+		DoNothing: true})
 	return
 }
